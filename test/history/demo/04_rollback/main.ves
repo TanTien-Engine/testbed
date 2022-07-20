@@ -1,0 +1,54 @@
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
+
+node0.cam.position.set(6.9488776923542, 6.4533558631039, 0.90787255602931)
+node0.cam.yaw = -201.3
+node0.cam.pitch = -49.1
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.26051843166351
+
+_editor.add_node(node0, 199.78512917374, -60.20881602716)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../../../../../tantien/assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node1, 415.56655181158, 113.5271114707)
+
+var node2 = ::geograph::nodes::poly_expand::PolyExpand()
+node2.query_param("distance").value = 7.3452248573303
+
+_editor.add_node(node2, -238.54773674281, 134.10236071716)
+
+var node3 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node3.query_param("distance").value = 0.32685682177544
+
+_editor.add_node(node3, -26.238104295718, 130.64540826255)
+
+var node4 = ::geograph::nodes::boolean::Boolean()
+node4.query_param("operator").value = "subtract"
+
+_editor.add_node(node4, 177.8893313707, 129.91174592311)
+
+var node5 = ::geograph::nodes::box::Box()
+node5.query_param("size").value.set(1, 1, 1)
+node5.query_param("pos").value.set(1, 0, 1)
+node5.query_param("offset_x").value = false
+node5.query_param("offset_y").value = false
+node5.query_param("offset_z").value = false
+
+_editor.add_node(node5, 15.19873452237, -84.19043785156)
+
+var node6 = ::geograph::nodes::line::Line()
+node6.query_param("x0").value = 18.7
+node6.query_param("y0").value = 22
+node6.query_param("x1").value = 529.74444580078
+node6.query_param("y1").value = 507.52221679688
+
+_editor.add_node(node6, -441.25529222089, 92.641706773421)
+
+Blueprint.connect(node6, "geo", node2, "geo")
+Blueprint.connect(node2, "geo", node3, "geo")
+Blueprint.connect(node3, "geo", node4, "a")
+Blueprint.connect(node5, "geo", node4, "b")
+Blueprint.connect(node4, "geo", node1, "geos")
+Blueprint.connect(node0, "this", node1, "view_cam")
