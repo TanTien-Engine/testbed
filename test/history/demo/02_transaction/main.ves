@@ -7,66 +7,55 @@ node0.cam.zoom = 45
 node0.cam.update_vectors()
 node0.speed = 0.26051843166351
 
-_editor.add_node(node0, 145.77732917374, -32.48551602716)
+_editor.add_node(node0, 496.99742917374, -47.03191602716)
 
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "../../../../../tantien/assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node1, 365.63315181158, 141.1250114707)
+_editor.add_node(node1, 720.09935181158, 110.5989114707)
 
-var node2 = ::geograph::nodes::polyline::Polyline()
-node2.query_param("vertices").value = [ -590.26403808594, 63.645301818848, -237.98796081543, 159.78497314453, 83.39527130127, 20.193462371826, 258.3401184082, 54.483303070068, 362.62854003906, 200.00894165039 ]
-node2.query_param("closed").value = false
+var node2 = ::geograph::nodes::poly_expand::PolyExpand()
+node2.query_param("distance").value = 7.3452248573303
 
-_editor.add_node(node2, -445.84238842975, 281.68844628099)
+_editor.add_node(node2, -262.04988247756, 371.84266754261)
 
-var node3 = ::geograph::nodes::poly_expand::PolyExpand()
-node3.query_param("distance").value = 7.3452248573303
+var node3 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node3.query_param("distance").value = 0.32685682177544
 
-_editor.add_node(node3, -297.8110188412, 272.63036754261)
+_editor.add_node(node3, -27.944560184056, 139.64528594105)
 
-var node4 = ::geograph::nodes::poly_extrude::PolyExtrude()
-node4.query_param("distance").value = 0.32685682177544
+var node4 = ::geograph::nodes::boolean::Boolean()
+node4.query_param("operator").value = "subtract"
 
-_editor.add_node(node4, -149.83369382042, 270.34263503196)
+_editor.add_node(node4, 308.13785671078, 155.14587548455)
 
-var node5 = ::geograph::nodes::boolean::Boolean()
-node5.query_param("operator").value = "subtract"
+var node5 = ::geograph::nodes::box::Box()
+node5.query_param("size").value.set(1, 1, 1)
+node5.query_param("pos").value.set(1, 0, 1)
+node5.query_param("offset_x").value = false
+node5.query_param("offset_y").value = false
+node5.query_param("offset_z").value = false
 
-_editor.add_node(node5, 62.736879388882, 200.88509490008)
+_editor.add_node(node5, 130.15753452237, 24.34326214844)
 
-var node6 = ::geograph::nodes::box::Box()
-node6.query_param("size").value.set(1, 1, 1)
-node6.query_param("pos").value.set(1, 0, 1)
-node6.query_param("offset_x").value = false
-node6.query_param("offset_y").value = false
-node6.query_param("offset_z").value = false
+var node6 = ::geograph::nodes::line::Line()
+node6.query_param("x0").value = 18.7
+node6.query_param("y0").value = 22
+node6.query_param("x1").value = 529.74444580078
+node6.query_param("y1").value = 507.52221679688
 
-_editor.add_node(node6, -151.86620547763, 96.877702148437)
+_editor.add_node(node6, -415.68176494816, 340.47871586433)
 
-var node7 = ::blueprint::nodes::merge::Merge()
+var node7 = ::history::nodes::transaction::Transaction()
 
-_editor.add_node(node7, 62.20501461111, 291.22082687403)
+node7.set_size(717.743432, 335.406808)
+node7.title = "Transaction"
 
-var node8 = ::geograph::nodes::line::Line()
-node8.query_param("x0").value = 3.7
-node8.query_param("y0").value = -19
-node8.query_param("x1").value = 569.74444580078
-node8.query_param("y1").value = 405.52221679688
+_editor.add_node(node7, 51.31762408223, 226.58757538612)
 
-_editor.add_node(node8, -448.40903767543, 406.84235222797)
-
-var node9 = ::geograph::nodes::polyline::Polyline()
-node9.query_param("vertices").value = [ -590.26403808594, 63.645301818848, 4.6761693954468, 15.535345077515, 362.62854003906, 200.00894165039 ]
-node9.query_param("closed").value = false
-
-_editor.add_node(node9, -449.3005575432, 194.12795939895)
-
-Blueprint.connect(node8, "geo", node3, "geo")
-Blueprint.connect(node3, "geo", node4, "geo")
-Blueprint.connect(node4, "geo", node7, "in0")
-Blueprint.connect(node6, "geo", node7, "in1")
-Blueprint.connect(node4, "geo", node5, "a")
-Blueprint.connect(node6, "geo", node5, "b")
-Blueprint.connect(node5, "geo", node1, "geos")
+Blueprint.connect(node6, "geo", node2, "geo")
+Blueprint.connect(node2, "geo", node3, "geo")
+Blueprint.connect(node3, "geo", node4, "a")
+Blueprint.connect(node5, "geo", node4, "b")
+Blueprint.connect(node4, "geo", node1, "geos")
 Blueprint.connect(node0, "this", node1, "view_cam")

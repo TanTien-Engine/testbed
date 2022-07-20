@@ -1,4 +1,8 @@
 import "blueprint.nodes.commentary" for Commentary
+//import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
 
 class Transaction is Commentary
 {
@@ -6,8 +10,57 @@ class Transaction is Commentary
 	{
 		super.init()
 
+		//this.params.add(NodeParam("disable", false))
+
 		this.layout()
 
 		this.title = "Transaction"
+		this.disable = false
+	}
+
+	calc_value(idx) 
+	{
+		var in_pin = nil
+
+		if (in_pin) {
+			return Blueprint.calc_input_value(in_pin.node, in_pin.slot_idx)
+		} else {
+			return nil
+		}
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var disable = GUI.checkbox(ctx, "disable", this.disable, x, y)
+		if (disable != this.disable) {
+			this.disable = disable
+			this.on_disable_changed()
+			dirty = true
+		}
+
+		return dirty
+	}
+
+	on_disable_changed()
+	{
+		for (var node in this.children)
+		{
+			if (node["disable"] != nil) {
+				node.disable = this.disable
+				Blueprint.send_pin_dirty_root(node.exports[0])
+			}
+		}
 	}
 }
