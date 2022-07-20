@@ -1,0 +1,13 @@
+import "blueprint.nodes.commentary" for Commentary
+
+class Transaction is Commentary
+{
+	init()
+	{
+		super.init()
+
+		this.layout()
+
+		this.title = "Transaction"
+	}
+}

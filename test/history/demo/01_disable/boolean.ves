@@ -1,0 +1,43 @@
+var node0 = ::geograph::nodes::boolean::Boolean()
+node0.query_param("operator").value = "subtract"
+
+_editor.add_node(node0, 61.663452441406, 36.583549609375)
+
+var node1 = ::blueprint::nodes::input::Input()
+
+node1.var_name = "a"
+node1.var_type = [ "geo", "array" ]
+
+_editor.add_node(node1, -85, 76.5)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "b"
+node2.var_type = [ "geo", "array" ]
+
+_editor.add_node(node2, -84, 7.5)
+
+var node3 = ::blueprint::nodes::output::Output()
+
+node3.var_name = "geo"
+node3.var_type = [ "geo", "array" ]
+
+_editor.add_node(node3, 345.28027115891, 131.71696823002)
+
+var node4 = ::blueprint::nodes::property::Property()
+
+node4.var_name = "disable"
+node4.var_type = "bool"
+
+_editor.add_node(node4, 56.842935180278, 152.89899547246)
+
+var node5 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node5, 203.97345461398, 109.47807471116)
+
+Blueprint.connect(node1, "var", node0, "a")
+Blueprint.connect(node2, "var", node0, "b")
+Blueprint.connect(node4, "var", node5, "cond")
+Blueprint.connect(node1, "var", node5, "true")
+Blueprint.connect(node0, "geo", node5, "false")
+Blueprint.connect(node5, "result", node3, "var")
