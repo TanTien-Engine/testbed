@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+
+class Thread is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		return Blueprint.calc_input_value(this, 0)
+	}
+}

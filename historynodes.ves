@@ -1,5 +1,5 @@
 import "history.nodes.*"
 
 var HISTORY_NODES = [
-Transaction
+Transaction, Thread
 ]

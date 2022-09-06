@@ -46,6 +46,11 @@ node6.query_param("y1").value = 507.52221679688
 
 _editor.add_node(node6, -441.25529222089, 92.641706773421)
 
+var node7 = ::blueprint::nodes::cache::Cache()
+node7.query_param("disable").value = false
+
+_editor.add_node(node7, 40.08651984375, 262.65766060547)
+
 Blueprint.connect(node6, "geo", node2, "geo")
 Blueprint.connect(node2, "geo", node3, "geo")
 Blueprint.connect(node3, "geo", node4, "a")
