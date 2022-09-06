@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "brepgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+
+class Insert is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "key", VAR_TYPE_RKEY),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var v_geo = Blueprint.calc_input_value(this, 1)
+		if (!v_geo) {
+			return nil
+		}
+
+		var polys = v_geo.value.shape.polys
+		if (polys.isEmpty) {
+			return nil
+		}
+
+		var key = v_tree.value.insert(polys[0])
+		return Variant(VAR_TYPE_RKEY, key)
+	}	
+}

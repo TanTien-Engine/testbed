@@ -1,0 +1,2 @@
+var VAR_TYPE_RTREE = "rtree"
+var VAR_TYPE_RKEY  = "rkey"

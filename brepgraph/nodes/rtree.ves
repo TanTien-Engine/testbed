@@ -1,0 +1,29 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "brepgraph.variant" for VAR_TYPE_RTREE
+import "brepgraph" for RTree
+
+class Rtree is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+		]
+
+		this.layout()
+
+		this.index = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.index) {
+			this.index = RTree.init()
+		}
+		return Variant(VAR_TYPE_RTREE, this.index)
+	}
+}

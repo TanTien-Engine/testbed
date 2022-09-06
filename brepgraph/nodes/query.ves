@@ -1,0 +1,44 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+import "brepgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+
+class Query is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "key", VAR_TYPE_RKEY),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var v_key = Blueprint.calc_input_value(this, 1)
+		if (!v_key) {
+			return nil
+		}
+
+		var poly = v_tree.value.query(v_key.value)
+
+		var geo = VarGeo()
+		geo.shape = Brush([ poly ])
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+}
