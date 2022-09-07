@@ -2,5 +2,5 @@ import "brepgraph.nodes.*"
 
 var BREP_NODES = [
 Box, 
-Rtree, Insert, Query,
+Rtree, Insert, Query, Region,
 ]

@@ -1,10 +1,11 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "brepgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+import "brepgraph" for RKey
 
 class Query is Node
 {
@@ -14,10 +15,10 @@ class Query is Node
 
 		this.imports = [
 			Pin(this, "tree", VAR_TYPE_RTREE),
-			Pin(this, "key", VAR_TYPE_RKEY),
+			Pin(this, "key", [ VAR_TYPE_RKEY, VAR_TYPE_GEO ]),
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 
 		this.layout()
@@ -35,10 +36,26 @@ class Query is Node
 			return nil
 		}
 
-		var poly = v_tree.value.query(v_key.value)
+		var key = nil
+		if (v_key.type == VAR_TYPE_RKEY) {
+			key = v_key.value
+		} else if (v_key.type == VAR_TYPE_GEO) {
+			key = RKey.init(v_key.value.shape)
+		}
+		if (!key) {
+			return nil
+		}
 
-		var geo = VarGeo()
-		geo.shape = Brush([ poly ])
-		return Variant(VAR_TYPE_GEO, geo)
+		var geos = []
+
+		var polys = v_tree.value.query(key)
+		for (var poly in polys)
+		{
+			var geo = VarGeo()
+			geo.shape = Brush([ poly ])
+			geos.add(Variant(VAR_TYPE_GEO, geo))
+		}
+
+		return Variant(VAR_TYPE_ARRAY, geos)
 	}
 }

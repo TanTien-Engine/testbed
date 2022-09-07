@@ -21,9 +21,7 @@ class Rtree is Node
 
 	calc_value(idx)
 	{
-		if (!this.index) {
-			this.index = RTree.init()
-		}
-		return Variant(VAR_TYPE_RTREE, this.index)
+		var rtree = RTree.init()
+		return Variant(VAR_TYPE_RTREE, rtree)
 	}
 }

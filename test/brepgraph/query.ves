@@ -1,0 +1,77 @@
+var node0 = ::brepgraph::nodes::box::Box()
+node0.query_param("size").value.set(0.58477240800858, 0.80699461698532, 0.28477239608765)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -504.029556, 94.903142)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node1, 518.74891507438, -109.54075882645)
+
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
+
+node2.cam.position.set(-3.4540179484688, 3.208313641065, 2.2754943471035)
+node2.cam.yaw = -31.9
+node2.cam.pitch = -42
+node2.cam.zoom = 45
+node2.cam.update_vectors()
+node2.speed = 0.30714285373688
+
+_editor.add_node(node2, 226.753444, -177.307858)
+
+var node3 = ::brepgraph::nodes::rtree::Rtree()
+
+_editor.add_node(node3, -286.28833208114, 30.095129977459)
+
+var node4 = ::brepgraph::nodes::insert::Insert()
+
+_editor.add_node(node4, -143.20462195112, -1.96486886567)
+
+var node5 = ::blueprint::nodes::cache::Cache()
+node5.query_param("disable").value = false
+
+_editor.add_node(node5, -3.4208250802542, -2.7589235707901)
+
+var node6 = ::brepgraph::nodes::query::Query()
+
+_editor.add_node(node6, 239.07146506386, -27.340090157779)
+
+var node7 = ::brepgraph::nodes::box::Box()
+node7.query_param("size").value.set(0.2854505777359, 0.2854505777359, 0.21878391504288)
+node7.query_param("pos").value.set(0, 0, 0.48545056581497)
+node7.query_param("offset_x").value = false
+node7.query_param("offset_y").value = false
+node7.query_param("offset_z").value = false
+
+_editor.add_node(node7, -497.69051492, -163.94511594)
+
+var node8 = ::brepgraph::nodes::region::Region()
+node8.query_param("size").value.set(1, 1, 1)
+node8.query_param("pos").value.set(0, 0, 0)
+
+_editor.add_node(node8, 9.20090909091, 129.10363636364)
+
+var node9 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node9.query_param("skip").value = false
+
+_editor.add_node(node9, 474.78529337046, 13.609546172664)
+
+var node10 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node10, -287.95897443787, -39.20737804066)
+
+Blueprint.connect(node8, "aabb", node9, "geos")
+Blueprint.connect(node2, "mat", node9, "cam_mat")
+Blueprint.connect(node0, "geo", node10, "in0")
+Blueprint.connect(node7, "geo", node10, "in1")
+Blueprint.connect(node3, "tree", node4, "tree")
+Blueprint.connect(node10, "list", node4, "geo")
+Blueprint.connect(node4, "tree", node5, "var")
+Blueprint.connect(node5, "var", node6, "tree")
+Blueprint.connect(node8, "aabb", node6, "key")
+Blueprint.connect(node6, "geo", node1, "geos")
+Blueprint.connect(node2, "this", node1, "view_cam")

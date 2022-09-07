@@ -12,6 +12,7 @@ foreign class RTree
 foreign class RKey
 {
 	init() {}
+	init(aabb) {}
 }
 
 );

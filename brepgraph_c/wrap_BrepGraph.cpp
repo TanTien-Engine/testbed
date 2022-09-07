@@ -9,6 +9,8 @@
 #include <brepdb/MemoryStorageManager.h>
 #include <brepdb/ObjVisitor.h>
 #include <polymesh3/Polytope.h>
+#include <geoshape/Box.h>
+#include <SM_Cube.h>
 
 namespace
 {
@@ -70,32 +72,56 @@ void w_RTree_query()
     auto visitor = std::make_unique<brepdb::ObjVisitor>();
     rtree->ContainsWhatQuery(key->r, *visitor);
 
+    std::vector<pm3::PolytopePtr> polys;
+
     auto& items = visitor->GetResults();
-    if (items.empty()) {
-        ves_set_nil(0);
-        return;
+    for (auto item : items)
+    {
+        uint32_t len = 0;
+        uint8_t* data = nullptr;
+        item->GetData(len, &data);
+
+        auto poly = brepgraph::BRepTrans::BRepFromByteArray(data);
+        delete[] data;
+
+        polys.push_back(poly);
     }
-
-    uint32_t len = 0;
-    uint8_t* data = nullptr;
-    items[0]->GetData(len, &data);
-
-    auto poly = brepgraph::BRepTrans::BRepFromByteArray(data);
-    delete[] data;
 
     ves_pop(ves_argnum());
 
-    ves_pushnil();
-    ves_import_class("geometry", "Polytope");
-    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
-    proxy->obj = poly;
-    ves_pop(1);
+    const int num = (int)(polys.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnil();
+        ves_import_class("geometry", "Polytope");
+        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
+        proxy->obj = polys[i];
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
 }
 
 void w_RKey_allocate()
 {
+    auto key = std::make_shared<brepgraph::BRepKey>();
+
+    auto num = ves_argnum();
+    if (num == 2)
+    {
+        sm::cube cube = ((tt::Proxy<gs::Box>*)ves_toforeign(1))->obj->GetCube();
+        const double min[3] = { cube.xmin, cube.ymin, cube.zmin };
+        const double max[3] = { cube.xmax, cube.ymax, cube.zmax };
+
+        key->r.MakeInfinite();
+        key->r.Combine(brepdb::Point(min));
+        key->r.Combine(brepdb::Point(max));
+    }
+
     auto proxy = (tt::Proxy<brepgraph::BRepKey>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepgraph::BRepKey>));
-    proxy->obj = std::make_shared<brepgraph::BRepKey>();
+    proxy->obj = key;
+
 }
 
 int w_RKey_finalize(void* data)
