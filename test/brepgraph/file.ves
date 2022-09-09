@@ -1,0 +1,64 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node0, 607.1546573734, 350.45775357025)
+
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
+
+node1.cam.position.set(-7.2099649944677, 7.1363511745628, 7.0301043470494)
+node1.cam.yaw = -397.6
+node1.cam.pitch = -36
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.30714285373688
+
+_editor.add_node(node1, 225.17568291811, -177.307858)
+
+var node2 = ::brepgraph::nodes::rtree::Rtree()
+
+_editor.add_node(node2, -183.29679523877, 3.4074658213881)
+
+var node3 = ::blueprint::nodes::cache::Cache()
+node3.query_param("disable").value = false
+
+_editor.add_node(node3, -3.4208250802542, -2.7589235707901)
+
+var node4 = ::brepgraph::nodes::query::Query()
+
+_editor.add_node(node4, 233.61691960931, -28.24918106687)
+
+var node5 = ::brepgraph::nodes::region::Region()
+node5.query_param("size").value.set(2.181761264801, 2.4595391750336, 2.4595391750336)
+node5.query_param("pos").value.set(1.0301895141602, 0, 0)
+
+_editor.add_node(node5, 22.7282917958, 166.76704733284)
+
+var node6 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node6.query_param("skip").value = false
+
+_editor.add_node(node6, 584.78529337046, -26.390453827336)
+
+var node7 = ::brepgraph::nodes::rtree_dump::RtreeDump()
+
+_editor.add_node(node7, 147.02225407831, 41.571321666556)
+
+var node8 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node8, 285.48399769176, 148.59151944247)
+
+var node9 = ::brepgraph::nodes::file::File()
+node9.query_param("filename").value = "test_db"
+
+_editor.add_node(node9, -334, 4)
+
+Blueprint.connect(node9, "db", node2, "db")
+Blueprint.connect(node2, "tree", node3, "var")
+Blueprint.connect(node3, "var", node7, "tree")
+Blueprint.connect(node5, "aabb", node8, "in0")
+Blueprint.connect(node7, "regions", node8, "in1")
+Blueprint.connect(node3, "var", node4, "tree")
+Blueprint.connect(node5, "aabb", node4, "key")
+Blueprint.connect(node8, "list", node6, "geos")
+Blueprint.connect(node1, "mat", node6, "cam_mat")
+Blueprint.connect(node4, "geo", node0, "geos")
+Blueprint.connect(node1, "this", node0, "view_cam")

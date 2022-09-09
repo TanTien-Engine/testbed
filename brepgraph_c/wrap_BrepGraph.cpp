@@ -1,25 +1,40 @@
 #include "wrap_BrepGraph.h"
 #include "BRepTrans.h"
 #include "BRepKey.h"
+#include "RegionVisitor.h"
 #include "modules/script/TransHelper.h"
 
 #include <brepdb/RTree.h>
 #include <brepdb/Region.h>
 #include <brepdb/Point.h>
 #include <brepdb/MemoryStorageManager.h>
+#include <brepdb/DiskStorageManager.h>
 #include <brepdb/ObjVisitor.h>
 #include <polymesh3/Polytope.h>
 #include <geoshape/Box.h>
 #include <SM_Cube.h>
+
+#include <queue>
 
 namespace
 {
 
 void w_RTree_allocate()
 {
-    auto sm = std::make_shared<brepdb::MemoryStorageManager>();
     auto proxy = (tt::Proxy<brepdb::RTree>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepdb::RTree>));
-    proxy->obj = std::make_shared<brepdb::RTree>(sm);
+
+    auto num = ves_argnum();
+    if (num == 2)
+    {
+        auto sm = ((tt::Proxy<brepdb::MemoryStorageManager>*)ves_toforeign(1))->obj;
+        proxy->obj = std::make_shared<brepdb::RTree>(sm, false);
+    }
+    else
+    {
+//        auto sm = std::make_shared<brepdb::MemoryStorageManager>();
+        auto sm = std::make_shared<brepdb::DiskStorageManager>("test_db");
+        proxy->obj = std::make_shared<brepdb::RTree>(sm, true);
+    }
 }
 
 int w_RTree_finalize(void* data)
@@ -103,6 +118,34 @@ void w_RTree_query()
     }
 }
 
+void w_RTree_get_regions()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+
+    brepgraph::RegionVisitor visitor;
+    rtree->LevelTraversal(visitor);
+    auto& regions = visitor.GetRegions();
+
+    ves_pop(ves_argnum());
+
+    const int num = (int)(regions.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        const auto l = regions[i].GetLow();
+        const auto h = regions[i].GetHigh();
+        sm::cube cube(sm::vec3(l[0], l[1], l[2]), sm::vec3(h[0], h[1], h[2]));
+
+        ves_pushnil();
+        ves_import_class("geometry", "Box");
+        auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Box>));        
+        proxy->obj = std::make_shared<gs::Box>(cube);
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
 void w_RKey_allocate()
 {
     auto key = std::make_shared<brepgraph::BRepKey>();
@@ -113,8 +156,6 @@ void w_RKey_allocate()
         sm::cube cube = ((tt::Proxy<gs::Box>*)ves_toforeign(1))->obj->GetCube();
         const double min[3] = { cube.xmin, cube.ymin, cube.zmin };
         const double max[3] = { cube.xmax, cube.ymax, cube.zmax };
-
-        key->r.MakeInfinite();
         key->r.Combine(brepdb::Point(min));
         key->r.Combine(brepdb::Point(max));
     }
@@ -131,6 +172,20 @@ int w_RKey_finalize(void* data)
     return sizeof(tt::Proxy<brepgraph::BRepKey>);
 }
 
+void w_RFile_allocate()
+{
+    const char* filename = ves_tostring(1);
+    auto proxy = (tt::Proxy<brepdb::DiskStorageManager>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepdb::DiskStorageManager>));
+    proxy->obj = std::make_shared<brepdb::DiskStorageManager>(filename, false);
+}
+
+int w_RFile_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<brepdb::DiskStorageManager>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<brepdb::DiskStorageManager>);
+}
+
 }
 
 namespace brepgraph
@@ -140,6 +195,7 @@ VesselForeignMethodFn BrepGraphBindMethod(const char* signature)
 {
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
     if (strcmp(signature, "RTree.query(_)") == 0) return w_RTree_query;
+    if (strcmp(signature, "RTree.get_regions()") == 0) return w_RTree_get_regions;
 
     return nullptr;
 }
@@ -157,6 +213,13 @@ void BrepGraphBindClass(const char* class_name, VesselForeignClassMethods* metho
     {
         methods->allocate = w_RKey_allocate;
         methods->finalize = w_RKey_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "RFile") == 0)
+    {
+        methods->allocate = w_RFile_allocate;
+        methods->finalize = w_RFile_finalize;
         return;
     }
 }
