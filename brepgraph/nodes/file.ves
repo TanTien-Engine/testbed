@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant
 import "brepgraph.variant" for VAR_TYPE_DB_FILE
 import "blueprint.node_param" for NodeParam
 import "brepgraph" for RFile
+import "filesystem" for Filesystem
 
 class File is Node
 {
@@ -23,7 +24,11 @@ class File is Node
 	calc_value(idx)
 	{
 		var filename = this.query_param("filename").value
-		var db = RFile.init(filename)
-		return Variant(VAR_TYPE_DB_FILE, db)
+		if (Filesystem.is_file_exists(filename + ".idx")) {
+			var db = RFile.init(filename)
+			return Variant(VAR_TYPE_DB_FILE, db)
+		} else {
+			return nil
+		}
 	}
 }
