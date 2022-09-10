@@ -16,8 +16,8 @@ class Region is Node
 			Pin(this, "aabb", VAR_TYPE_GEO),
 		]
 
-		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 5 }))
-		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -10, "max" : 10 }))
+		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 20 }))
+		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -100, "max" : 100 }))
 
 		this.layout()
 	}

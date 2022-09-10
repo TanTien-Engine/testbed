@@ -9,7 +9,8 @@ foreign class RTree
 	foreign insert(poly)
 	foreign query(key)
 
-	foreign get_regions()
+	foreign get_all_leaves()
+	foreign query_leaves(region)
 }
 
 foreign class RKey

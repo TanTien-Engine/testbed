@@ -1,18 +1,18 @@
 var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node0, 607.1546573734, 350.45775357025)
+_editor.add_node(node0, 790.75289554019, 7.6263275747569)
 
 var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-node1.cam.position.set(-7.2099649944677, 7.1363511745628, 7.0301043470494)
-node1.cam.yaw = -397.6
-node1.cam.pitch = -36
-node1.cam.zoom = 45
+node1.cam.position.set(-21.733527088515, 25.553514157134, 26.692623004958)
+node1.cam.yaw = -408.6
+node1.cam.pitch = -37.4
+node1.cam.zoom = 42
 node1.cam.update_vectors()
-node1.speed = 0.30714285373688
+node1.speed = 0.5
 
-_editor.add_node(node1, 225.17568291811, -177.307858)
+_editor.add_node(node1, 224.26659200902, -177.307858)
 
 var node2 = ::brepgraph::nodes::rtree::Rtree()
 
@@ -25,40 +25,58 @@ _editor.add_node(node3, -3.4208250802542, -2.7589235707901)
 
 var node4 = ::brepgraph::nodes::query::Query()
 
-_editor.add_node(node4, 233.61691960931, -28.24918106687)
+_editor.add_node(node4, 178.77093914349, -4.2071074380195)
 
 var node5 = ::brepgraph::nodes::region::Region()
-node5.query_param("size").value.set(2.181761264801, 2.4595391750336, 2.4595391750336)
-node5.query_param("pos").value.set(1.0301895141602, 0, 0)
+node5.query_param("size").value.set(20, 20, 20)
+node5.query_param("pos").value.set(0, 0, 0)
 
-_editor.add_node(node5, 22.7282917958, 166.76704733284)
+_editor.add_node(node5, -36.625577475425, 172.77756574005)
 
 var node6 = ::geograph::nodes::draw_geometry::DrawGeometry()
 node6.query_param("skip").value = false
 
-_editor.add_node(node6, 584.78529337046, -26.390453827336)
+_editor.add_node(node6, 766.18575392643, -165.51410296333)
 
-var node7 = ::brepgraph::nodes::rtree_dump::RtreeDump()
+var node7 = ::brepgraph::nodes::leaves::Leaves()
 
-_editor.add_node(node7, 147.02225407831, 41.571321666556)
+_editor.add_node(node7, 151.53014288372, 88.904154123355)
 
 var node8 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node8, 285.48399769176, 148.59151944247)
+_editor.add_node(node8, 435.74695787208, 139.57574183165)
 
 var node9 = ::brepgraph::nodes::file::File()
 node9.query_param("filename").value = "test_db"
 
 _editor.add_node(node9, -334, 4)
 
+var node10 = ::geograph::nodes::brush_merge::BrushMerge()
+
+_editor.add_node(node10, 326.29960828705, 3.3076756776137)
+
+var node11 = ::blueprint::nodes::cache::Cache()
+node11.query_param("disable").value = false
+
+_editor.add_node(node11, 486.93246973555, -4.3066753797301)
+
+var node12 = ::blueprint::nodes::cache::Cache()
+node12.query_param("disable").value = false
+
+_editor.add_node(node12, 283.40891296249, 88.937769063696)
+
 Blueprint.connect(node9, "db", node2, "db")
 Blueprint.connect(node2, "tree", node3, "var")
 Blueprint.connect(node3, "var", node7, "tree")
+Blueprint.connect(node5, "aabb", node7, "region")
+Blueprint.connect(node7, "leaves", node12, "var")
 Blueprint.connect(node5, "aabb", node8, "in0")
-Blueprint.connect(node7, "regions", node8, "in1")
+Blueprint.connect(node12, "var", node8, "in1")
 Blueprint.connect(node3, "var", node4, "tree")
 Blueprint.connect(node5, "aabb", node4, "key")
+Blueprint.connect(node4, "geo", node10, "list")
+Blueprint.connect(node10, "brush", node11, "var")
 Blueprint.connect(node8, "list", node6, "geos")
 Blueprint.connect(node1, "mat", node6, "cam_mat")
-Blueprint.connect(node4, "geo", node0, "geos")
+Blueprint.connect(node11, "var", node0, "geos")
 Blueprint.connect(node1, "this", node0, "view_cam")

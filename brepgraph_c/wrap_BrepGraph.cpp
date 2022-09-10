@@ -85,7 +85,7 @@ void w_RTree_query()
     auto key = ((tt::Proxy<brepgraph::BRepKey>*)ves_toforeign(1))->obj;
     
     auto visitor = std::make_unique<brepdb::ObjVisitor>();
-    rtree->ContainsWhatQuery(key->r, *visitor);
+    rtree->IntersectsWithQuery(key->r, *visitor);
 
     std::vector<pm3::PolytopePtr> polys;
 
@@ -118,12 +118,46 @@ void w_RTree_query()
     }
 }
 
-void w_RTree_get_regions()
+void w_RTree_get_all_leaves()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
 
     brepgraph::RegionVisitor visitor;
     rtree->LevelTraversal(visitor);
+    auto& regions = visitor.GetRegions();
+
+    ves_pop(ves_argnum());
+
+    const int num = (int)(regions.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        const auto l = regions[i].GetLow();
+        const auto h = regions[i].GetHigh();
+        sm::cube cube(sm::vec3(l[0], l[1], l[2]), sm::vec3(h[0], h[1], h[2]));
+
+        ves_pushnil();
+        ves_import_class("geometry", "Box");
+        auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Box>));        
+        proxy->obj = std::make_shared<gs::Box>(cube);
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void w_RTree_query_leaves()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto box = ((tt::Proxy<gs::Box>*)ves_toforeign(1))->obj;
+
+    const auto& c = box->GetCube();
+    const double min[] = { c.xmin, c.ymin, c.zmin };
+    const double max[] = { c.xmax, c.ymax, c.zmax };
+    brepdb::Region region(min, max);
+
+    brepgraph::RegionVisitor visitor;
+    rtree->ContainsWhatQuery(region, visitor);
     auto& regions = visitor.GetRegions();
 
     ves_pop(ves_argnum());
@@ -195,7 +229,8 @@ VesselForeignMethodFn BrepGraphBindMethod(const char* signature)
 {
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
     if (strcmp(signature, "RTree.query(_)") == 0) return w_RTree_query;
-    if (strcmp(signature, "RTree.get_regions()") == 0) return w_RTree_get_regions;
+    if (strcmp(signature, "RTree.get_all_leaves()") == 0) return w_RTree_get_all_leaves;
+    if (strcmp(signature, "RTree.query_leaves(_)") == 0) return w_RTree_query_leaves;
 
     return nullptr;
 }

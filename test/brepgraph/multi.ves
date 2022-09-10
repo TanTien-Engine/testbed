@@ -126,7 +126,7 @@ node23.value = 1
 
 _editor.add_node(node23, -881.2693507125, 142.70826472419)
 
-var node24 = ::brepgraph::nodes::rtree_dump::RtreeDump()
+var node24 = ::brepgraph::nodes::leaves::Leaves()
 
 _editor.add_node(node24, 147.02225407831, 41.571321666556)
 

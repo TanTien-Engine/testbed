@@ -6,7 +6,7 @@ import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "brepgraph.variant" for VAR_TYPE_RTREE
 import "brepgraph" for RTree
 
-class RtreeDump is Node
+class Leaves is Node
 {
 	init()
 	{
@@ -14,9 +14,10 @@ class RtreeDump is Node
 
 		this.imports = [
 			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "region", VAR_TYPE_GEO),
 		]
 		this.exports = [
-			Pin(this, "regions", VAR_TYPE_ARRAY),
+			Pin(this, "leaves", VAR_TYPE_ARRAY),
 		]
 
 		this.layout()
@@ -31,8 +32,15 @@ class RtreeDump is Node
 
 		var geos = []
 
-		var regions = v_tree.value.get_regions()
-		for (var r in regions)
+		var leaves = nil
+		var v_region = Blueprint.calc_input_value(this, 1)
+		if (v_region) {
+			leaves = v_tree.value.query_leaves(v_region.value.shape)
+		} else {
+			leaves = v_tree.value.get_all_leaves()
+		}
+
+		for (var r in leaves)
 		{
 			var geo = VarGeo()
 			geo.shape = r
