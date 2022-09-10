@@ -26,7 +26,7 @@ void w_RTree_allocate()
     auto num = ves_argnum();
     if (num == 2)
     {
-        auto sm = ((tt::Proxy<brepdb::MemoryStorageManager>*)ves_toforeign(1))->obj;
+        auto sm = ((tt::Proxy<brepdb::DiskStorageManager>*)ves_toforeign(1))->obj;
         proxy->obj = std::make_shared<brepdb::RTree>(sm, false);
     }
     else
