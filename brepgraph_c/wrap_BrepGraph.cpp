@@ -65,6 +65,7 @@ void w_RTree_insert()
     }
 
     rtree->InsertData(length, data, aabb, id);
+    delete[] data;
 
     ves_pop(ves_argnum());
 
