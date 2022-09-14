@@ -1,0 +1,115 @@
+var node0 = ::brepgraph::nodes::box::Box()
+node0.query_param("size").value.set(0.58477240800858, 0.80699461698532, 0.28477239608765)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -949.33383849437, 92.423803157025)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node1, 559.65800598347, -49.54075882645)
+
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
+
+node2.cam.position.set(-2.8168307745186, 3.4005084165981, 8.8110093182442)
+node2.cam.yaw = -53.4
+node2.cam.pitch = -18.7
+node2.cam.zoom = 45
+node2.cam.update_vectors()
+node2.speed = 0.30714285373688
+
+_editor.add_node(node2, 226.753444, -177.307858)
+
+var node3 = ::brepgraph::nodes::rtree::Rtree()
+
+_editor.add_node(node3, -286.28833208114, 30.095129977459)
+
+var node4 = ::brepgraph::nodes::insert::Insert()
+node4.query_param("time").value = true
+
+_editor.add_node(node4, -143.20462195112, -1.96486886567)
+
+var node5 = ::blueprint::nodes::cache::Cache()
+node5.query_param("disable").value = false
+
+_editor.add_node(node5, -3.4208250802542, -2.7589235707901)
+
+var node6 = ::brepgraph::nodes::query::Query()
+node6.query_param("tmin").value = 0.22142808139324
+node6.query_param("tmax").value = 0.69920587539673
+
+_editor.add_node(node6, 231.07146506386, -19.340090157779)
+
+var node7 = ::brepgraph::nodes::box::Box()
+node7.query_param("size").value.set(0.2854505777359, 0.2854505777359, 0.21878391504288)
+node7.query_param("pos").value.set(0, 0, 0.48545056581497)
+node7.query_param("offset_x").value = false
+node7.query_param("offset_y").value = false
+node7.query_param("offset_z").value = false
+
+_editor.add_node(node7, -542.76940297409, -459.96314749522)
+
+var node8 = ::brepgraph::nodes::region::Region()
+node8.query_param("size").value.set(10, 2, 2)
+node8.query_param("pos").value.set(4.7554545402527, 0, 0)
+
+_editor.add_node(node8, 34.20090909091, 131.10363636364)
+
+var node9 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node9.query_param("skip").value = false
+
+_editor.add_node(node9, 464.78529337046, 179.9731825363)
+
+var node10 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node10, -333.03786249196, -335.22540959588)
+
+var node11 = ::blueprint::nodes::for_each_f::ForEachF()
+
+_editor.add_node(node11, -644.99045894402, 62.183046295372)
+
+var node12 = ::blueprint::nodes::integer::Integer()
+
+node12.value = 10
+
+_editor.add_node(node12, -784.78703317965, 82.010103945943)
+
+var node13 = ::geograph::nodes::translate_f::TranslateF()
+
+_editor.add_node(node13, -783.75061818387, 11.3324181331)
+
+var node14 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node14, -949.16888788167, -122.17645719487)
+
+var node15 = ::blueprint::nodes::number::Number()
+
+node15.value = 0.87608373165131
+
+_editor.add_node(node15, -1228.301106049, -73.011574831454)
+
+var node16 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node16, -1090.3078287023, -72.193010185044)
+
+Blueprint.connect(node15, "v", node16, "a")
+Blueprint.connect(node11, "curr_item", node16, "b")
+Blueprint.connect(node16, "v", node14, "x")
+Blueprint.connect(node8, "aabb", node9, "geos")
+Blueprint.connect(node2, "mat", node9, "cam_mat")
+Blueprint.connect(node0, "geo", node13, "geo")
+Blueprint.connect(node14, "xyz", node13, "xyz")
+Blueprint.connect(node12, "v", node11, "count")
+Blueprint.connect(node13, "geo", node11, "eval")
+Blueprint.connect(node3, "tree", node4, "tree")
+Blueprint.connect(node11, "result", node4, "geo")
+Blueprint.connect(node4, "tree", node5, "var")
+Blueprint.connect(node5, "var", node6, "tree")
+Blueprint.connect(node8, "aabb", node6, "key")
+Blueprint.connect(node6, "geo", node1, "geos")
+Blueprint.connect(node2, "this", node1, "view_cam")
+Blueprint.connect(node0, "geo", node10, "in0")
+Blueprint.connect(node7, "geo", node10, "in1")

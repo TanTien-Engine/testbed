@@ -27,7 +27,7 @@ class Box is Node
 		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 1 }))
 		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -1, "max" : 1 }))
 
-		this.params.add(NodeParam("offset_x", false))		
+		this.params.add(NodeParam("offset_x", false))
 		this.params.add(NodeParam("offset_y", false))
 		this.params.add(NodeParam("offset_z", false))
 

@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "brepgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
@@ -20,6 +21,9 @@ class Query is Node
 		this.exports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
+
+		this.params.add(NodeParam("tmin", 0))
+		this.params.add(NodeParam("tmax", 1))
 
 		this.layout()
 	}
@@ -48,7 +52,11 @@ class Query is Node
 
 		var geos = []
 
-		var polys = v_tree.value.query(key)
+		var tmin = this.query_param("tmin").value
+		var tmax = this.query_param("tmax").value
+
+//		var polys = v_tree.value.query(key, tmin, tmax)
+		var polys = v_tree.value.query_with_time(key, tmin, tmax)
 		for (var poly in polys)
 		{
 			var geo = VarGeo()

@@ -5,9 +5,9 @@ _editor.add_node(node0, 790.75289554019, 7.6263275747569)
 
 var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-node1.cam.position.set(-21.733527088515, 25.553514157134, 26.692623004958)
-node1.cam.yaw = -408.6
-node1.cam.pitch = -37.4
+node1.cam.position.set(-147.89907696593, 173.38400907995, 186.49116294148)
+node1.cam.yaw = -395.9
+node1.cam.pitch = -34.5
 node1.cam.zoom = 42
 node1.cam.update_vectors()
 node1.speed = 0.5
@@ -28,10 +28,10 @@ var node4 = ::brepgraph::nodes::query::Query()
 _editor.add_node(node4, 178.77093914349, -4.2071074380195)
 
 var node5 = ::brepgraph::nodes::region::Region()
-node5.query_param("size").value.set(20, 20, 20)
-node5.query_param("pos").value.set(0, 0, 0)
+node5.query_param("size").value.set(1.3358052968979, 1.1135830879211, 0.80568438768387)
+node5.query_param("pos").value.set(100, 0, 0)
 
-_editor.add_node(node5, -36.625577475425, 172.77756574005)
+_editor.add_node(node5, -25.399892023648, 172.39202245062)
 
 var node6 = ::geograph::nodes::draw_geometry::DrawGeometry()
 node6.query_param("skip").value = false

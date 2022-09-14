@@ -1,0 +1,148 @@
+var node0 = ::brepgraph::nodes::box::Box()
+node0.query_param("size").value.set(1, 0.20032823085785, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -916.653493, -96.007985000001)
+
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
+
+node1.cam.position.set(-0.44003174674624, 1.4982665179566, 1.0745752328461)
+node1.cam.yaw = -53.2
+node1.cam.pitch = -51.9
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.30714285373688
+
+_editor.add_node(node1, 396.18858118182, -466.87116481818)
+
+var node2 = ::brepgraph::nodes::rtree::Rtree()
+
+_editor.add_node(node2, -671.43266973131, -22.258312025463)
+
+var node3 = ::brepgraph::nodes::insert::Insert()
+node3.query_param("time").value = false
+
+_editor.add_node(node3, -344.60940881677, -156.2539743571)
+
+var node4 = ::blueprint::nodes::cache::Cache()
+node4.query_param("disable").value = false
+
+_editor.add_node(node4, 173.52549391975, -293.20404857079)
+
+var node5 = ::brepgraph::nodes::query::Query()
+node5.query_param("tmin").value = 0.67125415802002
+node5.query_param("tmax").value = 1
+
+_editor.add_node(node5, 373.58712249764, -245.93773206236)
+
+var node6 = ::brepgraph::nodes::box::Box()
+node6.query_param("size").value.set(0.42433878779411, 1, 0.43544989824295)
+node6.query_param("pos").value.set(0, 0, 0)
+node6.query_param("offset_x").value = false
+node6.query_param("offset_y").value = false
+node6.query_param("offset_z").value = false
+
+_editor.add_node(node6, -915.37885192, -349.10214294)
+
+var node7 = ::brepgraph::nodes::region::Region()
+node7.query_param("size").value.set(2.4221212863922, 2.4221212863922, 2.5332322120667)
+node7.query_param("pos").value.set(0, 0, 0)
+
+_editor.add_node(node7, 175.45722809091, -176.25976136363)
+
+var node8 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node8.query_param("skip").value = false
+
+_editor.add_node(node8, 582.73861237046, -271.83557882734)
+
+var node9 = ::geograph::nodes::boolean::Boolean()
+node9.query_param("operator").value = "subtract"
+
+_editor.add_node(node9, -717.71673094531, -170.24902992969)
+
+var node10 = ::blueprint::nodes::number::Number()
+
+node10.value = 0.32790493965149
+
+_editor.add_node(node10, -514.78409270595, -302.18794671595)
+
+var node11 = ::geograph::nodes::boolean::Boolean()
+node11.query_param("operator").value = "subtract"
+
+_editor.add_node(node11, -516.2875287755, -207.46579845572)
+
+var node12 = ::brepgraph::nodes::box::Box()
+node12.query_param("size").value.set(0.1943359375, 1, 0.44989150762558)
+node12.query_param("pos").value.set(0, 0, 0.29433593153954)
+node12.query_param("offset_x").value = false
+node12.query_param("offset_y").value = false
+node12.query_param("offset_z").value = false
+
+_editor.add_node(node12, -718.76290417674, -360.28604120825)
+
+var node13 = ::brepgraph::nodes::insert::Insert()
+node13.query_param("time").value = false
+
+_editor.add_node(node13, -520.29235813717, -60.926873134505)
+
+var node14 = ::blueprint::nodes::number::Number()
+
+node14.value = 0
+
+_editor.add_node(node14, -668.73681289405, -84.447678448277)
+
+var node15 = ::blueprint::nodes::number::Number()
+
+node15.value = 0.72007244825363
+
+_editor.add_node(node15, -201.52973128595, -368.40828415195)
+
+var node16 = ::geograph::nodes::boolean::Boolean()
+node16.query_param("operator").value = "subtract"
+
+_editor.add_node(node16, -203.0331673555, -273.68613589172)
+
+var node17 = ::brepgraph::nodes::box::Box()
+node17.query_param("size").value.set(1, 0.36445480585098, 0.18667703866959)
+node17.query_param("pos").value.set(0.38667705655098, 0, 0)
+node17.query_param("offset_x").value = false
+node17.query_param("offset_y").value = false
+node17.query_param("offset_z").value = false
+
+_editor.add_node(node17, -352.80094275674, -391.36797864425)
+
+var node18 = ::brepgraph::nodes::insert::Insert()
+node18.query_param("time").value = false
+
+_editor.add_node(node18, -45.23122881677, -270.2414343571)
+
+var node19 = ::blueprint::nodes::subgraph::Subgraph()
+node19.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos_deferred.ves")
+node19.set_prop_value("no_bg", false)
+
+_editor.add_node(node19, 636.22619497656, -431.85927294922)
+
+Blueprint.connect(node1, "mat", node8, "cam_mat")
+Blueprint.connect(node0, "geo", node9, "a")
+Blueprint.connect(node6, "geo", node9, "b")
+Blueprint.connect(node2, "tree", node13, "tree")
+Blueprint.connect(node9, "geo", node13, "geo")
+Blueprint.connect(node14, "v", node13, "time")
+Blueprint.connect(node9, "geo", node11, "a")
+Blueprint.connect(node12, "geo", node11, "b")
+Blueprint.connect(node11, "geo", node16, "a")
+Blueprint.connect(node17, "geo", node16, "b")
+Blueprint.connect(node13, "tree", node3, "tree")
+Blueprint.connect(node11, "geo", node3, "geo")
+Blueprint.connect(node10, "v", node3, "time")
+Blueprint.connect(node3, "tree", node18, "tree")
+Blueprint.connect(node16, "geo", node18, "geo")
+Blueprint.connect(node15, "v", node18, "time")
+Blueprint.connect(node18, "tree", node4, "var")
+Blueprint.connect(node4, "var", node5, "tree")
+Blueprint.connect(node7, "aabb", node5, "key")
+Blueprint.connect(node5, "geo", node19, "geos")
+Blueprint.connect(node1, "this", node19, "view_cam")

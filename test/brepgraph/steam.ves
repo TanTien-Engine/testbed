@@ -32,7 +32,7 @@ var node5 = ::brepgraph::nodes::query::Query()
 _editor.add_node(node5, 267.23146506386, 249.14990984222)
 
 var node6 = ::brepgraph::nodes::region::Region()
-node6.query_param("size").value.set(20, 20, 20)
+node6.query_param("size").value.set(7.7566967010498, 7.7566967010498, 7.9789190292358)
 node6.query_param("pos").value.set(0, 0, 0)
 
 _editor.add_node(node6, 151.09486027523, 99.390601051848)
@@ -87,7 +87,7 @@ _editor.add_node(node15, -1049.9190093935, -186.40574122541)
 
 var node16 = ::blueprint::nodes::integer::Integer()
 
-node16.value = 10
+node16.value = 1000
 
 _editor.add_node(node16, -1486.9018236459, -182.27136336157)
 
@@ -119,7 +119,7 @@ _editor.add_node(node22, -366.00701917137, 12.634812566125)
 
 var node23 = ::blueprint::nodes::integer::Integer()
 
-node23.value = 10
+node23.value = 100000000
 
 _editor.add_node(node23, -532.62610192689, 20.184212535999)
 
