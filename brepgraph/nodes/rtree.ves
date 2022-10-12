@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_STRING
 import "brepgraph.variant" for VAR_TYPE_DB_FILE, VAR_TYPE_RTREE
 import "blueprint.blueprint" for Blueprint
 import "brepgraph" for RTree
@@ -12,7 +12,8 @@ class Rtree is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "db", VAR_TYPE_DB_FILE),
+			Pin(this, "db",    VAR_TYPE_DB_FILE),
+			Pin(this, "model", VAR_TYPE_STRING),
 		]
 		this.exports = [
 			Pin(this, "tree", VAR_TYPE_RTREE),
@@ -28,8 +29,12 @@ class Rtree is Node
 		var v_db = Blueprint.calc_input_value(this, 0)
 		if (v_db and v_db.value) {
 			rtree = RTree.init(v_db.value)
-		} else {
-			rtree = RTree.init()
+		} 
+
+		rtree = RTree.init()
+		var v_model = Blueprint.calc_input_value(this, 1)
+		if (v_model) {
+			rtree.load_from_file(v_model.value)
 		}
 
 		return Variant(VAR_TYPE_RTREE, rtree)

@@ -6,6 +6,8 @@ foreign class RTree
 	init() {}
 	init(db) {}
 
+	foreign load_from_file(filepath)
+
 	foreign insert(poly)
 	foreign query(key)
 

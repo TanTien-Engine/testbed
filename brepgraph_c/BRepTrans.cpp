@@ -7,49 +7,22 @@ namespace brepgraph
 
 void BRepTrans::BRepToByteArray(const pm3::Polytope& brep, uint8_t** data, uint32_t& length)
 {
-	auto& points = brep.Points();
-	auto& faces  = brep.Faces();
+	auto& src_points = brep.Points();
+	auto& src_faces = brep.Faces();
 
-	size_t sz = 0;
-	sz += sizeof(uint32_t);
-	sz += points.size() * 3 * sizeof(float);
-	sz += sizeof(uint32_t) + sizeof(uint32_t) * faces.size();
-	for (auto& f : faces) {
-		sz += f->border.size() * sizeof(uint32_t);
+	std::vector<sm::vec3> points;
+	points.reserve(src_points.size());
+	for (auto& p : src_points) {
+		points.push_back(p->pos);
 	}
 
-	length = static_cast<uint32_t>(sz);
-	*data = new uint8_t[length];
-	uint8_t* ptr = *data;
-
-	const uint32_t p_num = static_cast<uint32_t>(points.size());
-	memcpy(ptr, &p_num, sizeof(uint32_t));
-	ptr += sizeof(uint32_t);
-	for (auto& p : points)
-	{
-		for (int i = 0; i < 3; ++i)
-		{
-			const float coords = p->pos.xyz[i];
-			memcpy(ptr, &coords, sizeof(uint32_t));
-			ptr += sizeof(float);
-		}
+	std::vector<std::vector<size_t>> faces;
+	faces.reserve(src_faces.size());
+	for (auto& f : src_faces) {
+		faces.push_back(f->border);
 	}
 
-	const uint32_t f_num = static_cast<uint32_t>(faces.size());
-	memcpy(ptr, &f_num, sizeof(uint32_t));
-	ptr += sizeof(uint32_t);
-	for (auto& f : faces)
-	{
-		const uint32_t v_num = static_cast<uint32_t>(f->border.size());
-		memcpy(ptr, &v_num, sizeof(uint32_t));
-		ptr += sizeof(uint32_t);
-		for (auto& v : f->border)
-		{
-			const uint32_t idx = static_cast<uint32_t>(v);
-			memcpy(ptr, &idx, sizeof(uint32_t));
-			ptr += sizeof(uint32_t);
-		}
-	}
+	BRepToByteArray(points, faces, data, length);
 }
 
 pm3::PolytopePtr BRepTrans::BRepFromByteArray(const uint8_t* data)
@@ -100,6 +73,52 @@ pm3::PolytopePtr BRepTrans::BRepFromByteArray(const uint8_t* data)
 	}
 
 	return std::make_shared<pm3::Polytope>(points, faces);
+}
+
+void BRepTrans::BRepToByteArray(const std::vector<sm::vec3>& points, 
+	                            const std::vector<std::vector<size_t>>& faces, 
+	                            uint8_t** data, uint32_t& length)
+{
+	size_t sz = 0;
+	sz += sizeof(uint32_t);
+	sz += points.size() * 3 * sizeof(float);
+	sz += sizeof(uint32_t) + sizeof(uint32_t) * faces.size();
+	for (auto& f : faces) {
+		sz += f.size() * sizeof(uint32_t);
+	}
+
+	length = static_cast<uint32_t>(sz);
+	*data = new uint8_t[length];
+	uint8_t* ptr = *data;
+
+	const uint32_t p_num = static_cast<uint32_t>(points.size());
+	memcpy(ptr, &p_num, sizeof(uint32_t));
+	ptr += sizeof(uint32_t);
+	for (auto& p : points)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			const float coords = p.xyz[i];
+			memcpy(ptr, &coords, sizeof(uint32_t));
+			ptr += sizeof(float);
+		}
+	}
+
+	const uint32_t f_num = static_cast<uint32_t>(faces.size());
+	memcpy(ptr, &f_num, sizeof(uint32_t));
+	ptr += sizeof(uint32_t);
+	for (auto& f : faces)
+	{
+		const uint32_t v_num = static_cast<uint32_t>(f.size());
+		memcpy(ptr, &v_num, sizeof(uint32_t));
+		ptr += sizeof(uint32_t);
+		for (auto& v : f)
+		{
+			const uint32_t idx = static_cast<uint32_t>(v);
+			memcpy(ptr, &idx, sizeof(uint32_t));
+			ptr += sizeof(uint32_t);
+		}
+	}
 }
 
 }

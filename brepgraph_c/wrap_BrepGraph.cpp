@@ -2,6 +2,7 @@
 #include "BRepTrans.h"
 #include "BRepKey.h"
 #include "RegionVisitor.h"
+#include "RTree.h"
 #include "modules/script/TransHelper.h"
 
 #include <brepdb/RTree.h>
@@ -42,6 +43,14 @@ int w_RTree_finalize(void* data)
     auto proxy = (tt::Proxy<brepdb::RTree>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<brepdb::RTree>);
+}
+
+void w_RTree_load_from_file()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto filepath = ves_tostring(1);
+
+    brepgraph::RTree::LoadFromFile(*rtree, filepath);
 }
 
 void w_RTree_insert()
@@ -311,6 +320,7 @@ namespace brepgraph
 
 VesselForeignMethodFn BrepGraphBindMethod(const char* signature)
 {
+    if (strcmp(signature, "RTree.load_from_file(_)") == 0) return w_RTree_load_from_file;
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
     if (strcmp(signature, "RTree.insert_with_time(_,_)") == 0) return w_RTree_insert_with_time;
     if (strcmp(signature, "RTree.query(_)") == 0) return w_RTree_query;
