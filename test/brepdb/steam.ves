@@ -14,11 +14,11 @@ node1.speed = 0.30714285373688
 
 _editor.add_node(node1, 235.17266946274, -229.337858)
 
-var node2 = ::brepgraph::nodes::rtree::Rtree()
+var node2 = ::brepdb::nodes::rtree::Rtree()
 
 _editor.add_node(node2, -530.87627711944, 77.660631532312)
 
-var node3 = ::brepgraph::nodes::insert::Insert()
+var node3 = ::brepdb::nodes::insert::Insert()
 
 _editor.add_node(node3, -532.15143213717, -48.267536400121)
 
@@ -27,11 +27,11 @@ node4.query_param("disable").value = false
 
 _editor.add_node(node4, -217.92082508025, 22.54107642921)
 
-var node5 = ::brepgraph::nodes::query::Query()
+var node5 = ::brepdb::nodes::query::Query()
 
 _editor.add_node(node5, 267.23146506386, 249.14990984222)
 
-var node6 = ::brepgraph::nodes::region::Region()
+var node6 = ::brepdb::nodes::region::Region()
 node6.query_param("size").value.set(7.7566967010498, 7.7566967010498, 7.9789190292358)
 node6.query_param("pos").value.set(0, 0, 0)
 
@@ -42,7 +42,7 @@ node7.query_param("skip").value = false
 
 _editor.add_node(node7, 746.78529337046, -6.3904538273359)
 
-var node8 = ::brepgraph::nodes::box::Box()
+var node8 = ::brepdb::nodes::box::Box()
 node8.query_param("size").value.set(1, 1, 1)
 node8.query_param("pos").value.set(0, 0, 0)
 node8.query_param("offset_x").value = false
@@ -96,7 +96,7 @@ node17.query_param("disable").value = false
 
 _editor.add_node(node17, 552.03810210248, 256.01900466987)
 
-var node18 = ::brepgraph::nodes::leaves::Leaves()
+var node18 = ::brepdb::nodes::leaves::Leaves()
 
 _editor.add_node(node18, 15.13225407831, -10.458678333444)
 
@@ -123,7 +123,7 @@ node23.value = 100000000
 
 _editor.add_node(node23, -532.62610192689, 20.184212535999)
 
-var node24 = ::brepgraph::nodes::file::File()
+var node24 = ::brepdb::nodes::file::File()
 node24.query_param("filename").value = "test_db"
 
 _editor.add_node(node24, -668.24692796202, 78.480243389261)

@@ -2,7 +2,7 @@
 
 #include <brepdb/Region.h>
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
 class BRepKey

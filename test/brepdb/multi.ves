@@ -5,21 +5,20 @@ _editor.add_node(node0, 607.1546573734, 350.45775357025)
 
 var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-node1.cam.position.set(4.4242649089134, 5.1733166626208, 7.3537759326413)
-node1.cam.yaw = -485.7
-node1.cam.pitch = -31.3
+node1.cam.position.set(-7.2099649944677, 7.1363511745628, 7.0301043470494)
+node1.cam.yaw = -397.6
+node1.cam.pitch = -36
 node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.30714285373688
 
-_editor.add_node(node1, 267.17568291811, -205.307858)
+_editor.add_node(node1, 225.17568291811, -177.307858)
 
-var node2 = ::brepgraph::nodes::rtree::Rtree()
+var node2 = ::brepdb::nodes::rtree::Rtree()
 
 _editor.add_node(node2, -350.5695225115, 125.22564763957)
 
-var node3 = ::brepgraph::nodes::insert::Insert()
-node3.query_param("time").value = false
+var node3 = ::brepdb::nodes::insert::Insert()
 
 _editor.add_node(node3, -143.20462195112, -1.96486886567)
 
@@ -28,13 +27,11 @@ node4.query_param("disable").value = false
 
 _editor.add_node(node4, -3.4208250802542, -2.7589235707901)
 
-var node5 = ::brepgraph::nodes::query::Query()
-node5.query_param("tmin").value = 0
-node5.query_param("tmax").value = 1
+var node5 = ::brepdb::nodes::query::Query()
 
 _editor.add_node(node5, 239.07146506386, -27.340090157779)
 
-var node6 = ::brepgraph::nodes::region::Region()
+var node6 = ::brepdb::nodes::region::Region()
 node6.query_param("size").value.set(1.8484280109406, 1.7373168468475, 1.8484280109406)
 node6.query_param("pos").value.set(0, 0, 0)
 
@@ -53,9 +50,9 @@ var node9 = ::blueprint::nodes::integer::Integer()
 
 node9.value = 10
 
-_editor.add_node(node9, -1074.7784617055, 296.5998307905)
+_editor.add_node(node9, -878.75846170551, 219.1598307905)
 
-var node10 = ::brepgraph::nodes::box::Box()
+var node10 = ::brepdb::nodes::box::Box()
 node10.query_param("size").value.set(1, 1, 1)
 node10.query_param("pos").value.set(0, 0, 0)
 node10.query_param("offset_x").value = false
@@ -117,31 +114,25 @@ _editor.add_node(node20, -1341.720189164, -203.56874389523)
 
 var node21 = ::blueprint::nodes::multiply::Multiply()
 
-_editor.add_node(node21, -728.18583765547, 221.35116047412)
+_editor.add_node(node21, -724.38165283203, 227.98641967773)
 
 var node22 = ::blueprint::nodes::add::Add()
 
-_editor.add_node(node22, -756.62618232114, 137.44909117689)
+_editor.add_node(node22, -706.21295918064, 96.126777127307)
 
 var node23 = ::blueprint::nodes::integer::Integer()
 
-node23.value = 10
+node23.value = 1
 
-_editor.add_node(node23, -915.2693507125, 106.70826472419)
+_editor.add_node(node23, -881.2693507125, 142.70826472419)
 
-var node24 = ::brepgraph::nodes::leaves::Leaves()
+var node24 = ::brepdb::nodes::leaves::Leaves()
 
 _editor.add_node(node24, 147.02225407831, 41.571321666556)
 
 var node25 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node25, 285.48399769176, 148.59151944247)
-
-var node26 = ::blueprint::nodes::integer::Integer()
-
-node26.value = 2
-
-_editor.add_node(node26, -1068.4899193859, 220.11940248921)
 
 Blueprint.connect(node18, "v", node16, "v")
 Blueprint.connect(node16, "v", node11, "min")
@@ -159,7 +150,7 @@ Blueprint.connect(node17, "xyz", node10, "pos")
 Blueprint.connect(node9, "v", node22, "a")
 Blueprint.connect(node23, "v", node22, "b")
 Blueprint.connect(node9, "v", node21, "a")
-Blueprint.connect(node26, "v", node21, "b")
+Blueprint.connect(node9, "v", node21, "b")
 Blueprint.connect(node21, "v", node8, "count")
 Blueprint.connect(node10, "geo", node8, "eval")
 Blueprint.connect(node8, "result", node19, "var")
@@ -167,7 +158,8 @@ Blueprint.connect(node2, "tree", node3, "tree")
 Blueprint.connect(node19, "var", node3, "geo")
 Blueprint.connect(node3, "tree", node4, "var")
 Blueprint.connect(node4, "var", node24, "tree")
-Blueprint.connect(node24, "leaves", node25, "in1")
+Blueprint.connect(node6, "aabb", node25, "in0")
+Blueprint.connect(node24, "regions", node25, "in1")
 Blueprint.connect(node4, "var", node5, "tree")
 Blueprint.connect(node6, "aabb", node5, "key")
 Blueprint.connect(node25, "list", node7, "geos")

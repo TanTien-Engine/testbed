@@ -1,4 +1,4 @@
-var node0 = ::brepgraph::nodes::box::Box()
+var node0 = ::brepdb::nodes::box::Box()
 node0.query_param("size").value.set(0.58477240800858, 0.80699461698532, 0.28477239608765)
 node0.query_param("pos").value.set(0, 0, 0)
 node0.query_param("offset_x").value = false
@@ -23,11 +23,11 @@ node2.speed = 0.30714285373688
 
 _editor.add_node(node2, 226.753444, -177.307858)
 
-var node3 = ::brepgraph::nodes::rtree::Rtree()
+var node3 = ::brepdb::nodes::rtree::Rtree()
 
 _editor.add_node(node3, -286.28833208114, 30.095129977459)
 
-var node4 = ::brepgraph::nodes::insert::Insert()
+var node4 = ::brepdb::nodes::insert::Insert()
 node4.query_param("time").value = true
 
 _editor.add_node(node4, -143.20462195112, -1.96486886567)
@@ -37,13 +37,13 @@ node5.query_param("disable").value = false
 
 _editor.add_node(node5, -3.4208250802542, -2.7589235707901)
 
-var node6 = ::brepgraph::nodes::query::Query()
+var node6 = ::brepdb::nodes::query::Query()
 node6.query_param("tmin").value = 0.22142808139324
 node6.query_param("tmax").value = 0.69920587539673
 
 _editor.add_node(node6, 231.07146506386, -19.340090157779)
 
-var node7 = ::brepgraph::nodes::box::Box()
+var node7 = ::brepdb::nodes::box::Box()
 node7.query_param("size").value.set(0.2854505777359, 0.2854505777359, 0.21878391504288)
 node7.query_param("pos").value.set(0, 0, 0.48545056581497)
 node7.query_param("offset_x").value = false
@@ -52,7 +52,7 @@ node7.query_param("offset_z").value = false
 
 _editor.add_node(node7, -542.76940297409, -459.96314749522)
 
-var node8 = ::brepgraph::nodes::region::Region()
+var node8 = ::brepdb::nodes::region::Region()
 node8.query_param("size").value.set(10, 2, 2)
 node8.query_param("pos").value.set(4.7554545402527, 0, 0)
 

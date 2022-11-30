@@ -25,7 +25,7 @@ struct Vertex
 
 }
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
 void RTree::LoadFromFile(brepdb::RTree& rtree, const char* filepath)
@@ -94,7 +94,7 @@ void RTree::LoadFromFile(brepdb::RTree& rtree, const char* filepath)
 
 		uint8_t* data = nullptr;
 		uint32_t length = 0;
-		brepgraph::BRepTrans::BRepToByteArray(points, faces, &data, length);
+		brepdbgraph::BRepTrans::BRepToByteArray(points, faces, &data, length);
 
 		id_type id = 0;
 

@@ -1,6 +1,6 @@
 import "editor.editor" for Editor
 
-class Brepeditor is Editor
+class Brepdbeditor is Editor
 {
 	load()
 	{
@@ -23,8 +23,8 @@ class Brepeditor is Editor
 			super.add_popup_node(node)
 		}
 
-		import "brepnodes" for BREP_NODES
-		for (var node in BREP_NODES) {
+		import "brepdbnodes" for BREPDB_NODES
+		for (var node in BREPDB_NODES) {
 			super.add_popup_node(node)
 		}
 	}

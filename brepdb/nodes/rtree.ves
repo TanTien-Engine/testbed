@@ -1,9 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_STRING
-import "brepgraph.variant" for VAR_TYPE_DB_FILE, VAR_TYPE_RTREE
+import "brepdb.variant" for VAR_TYPE_DB_FILE, VAR_TYPE_RTREE
 import "blueprint.blueprint" for Blueprint
-import "brepgraph" for RTree
+import "brepdb" for RTree
 
 class Rtree is Node
 {

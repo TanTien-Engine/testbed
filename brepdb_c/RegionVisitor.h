@@ -4,7 +4,7 @@
 #include <brepdb/Region.h>
 #include <brepdb/Node.h>
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
 class RegionVisitor : public brepdb::IVisitor

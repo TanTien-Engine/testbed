@@ -2,7 +2,7 @@
 
 #include <polymesh3/Polytope.h>
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
 void BRepTrans::BRepToByteArray(const pm3::Polytope& brep, uint8_t** data, uint32_t& length)

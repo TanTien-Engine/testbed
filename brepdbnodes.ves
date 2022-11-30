@@ -1,6 +1,6 @@
-import "brepgraph.nodes.*"
+import "brepdb.nodes.*"
 
-var BREP_NODES = [
+var BREPDB_NODES = [
 Box, 
 Rtree, Insert, Query, Region, 
 Leaves, File,

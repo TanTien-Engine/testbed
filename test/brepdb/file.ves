@@ -14,7 +14,7 @@ node1.speed = 0.5
 
 _editor.add_node(node1, 224.26659200902, -177.307858)
 
-var node2 = ::brepgraph::nodes::rtree::Rtree()
+var node2 = ::brepdb::nodes::rtree::Rtree()
 
 _editor.add_node(node2, -183.29679523877, 3.4074658213881)
 
@@ -23,11 +23,11 @@ node3.query_param("disable").value = false
 
 _editor.add_node(node3, -3.4208250802542, -2.7589235707901)
 
-var node4 = ::brepgraph::nodes::query::Query()
+var node4 = ::brepdb::nodes::query::Query()
 
 _editor.add_node(node4, 178.77093914349, -4.2071074380195)
 
-var node5 = ::brepgraph::nodes::region::Region()
+var node5 = ::brepdb::nodes::region::Region()
 node5.query_param("size").value.set(1.3358052968979, 1.1135830879211, 0.80568438768387)
 node5.query_param("pos").value.set(100, 0, 0)
 
@@ -38,7 +38,7 @@ node6.query_param("skip").value = false
 
 _editor.add_node(node6, 766.18575392643, -165.51410296333)
 
-var node7 = ::brepgraph::nodes::leaves::Leaves()
+var node7 = ::brepdb::nodes::leaves::Leaves()
 
 _editor.add_node(node7, 151.53014288372, 88.904154123355)
 
@@ -46,7 +46,7 @@ var node8 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node8, 435.74695787208, 139.57574183165)
 
-var node9 = ::brepgraph::nodes::file::File()
+var node9 = ::brepdb::nodes::file::File()
 node9.query_param("filename").value = "test_db"
 
 _editor.add_node(node9, -334, 4)

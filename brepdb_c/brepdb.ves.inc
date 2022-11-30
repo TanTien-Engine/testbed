@@ -1,5 +1,5 @@
 #define QUOTE(...) #__VA_ARGS__
-static const char* brepgraphModuleSource = QUOTE(
+static const char* brepdbModuleSource = QUOTE(
 
 foreign class RTree
 {

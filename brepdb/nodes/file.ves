@@ -1,9 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
-import "brepgraph.variant" for VAR_TYPE_DB_FILE
+import "brepdb.variant" for VAR_TYPE_DB_FILE
 import "blueprint.node_param" for NodeParam
-import "brepgraph" for RFile
+import "brepdb" for RFile
 import "filesystem" for Filesystem
 
 class File is Node

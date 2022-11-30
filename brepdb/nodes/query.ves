@@ -5,8 +5,8 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
-import "brepgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
-import "brepgraph" for RKey
+import "brepdb.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+import "brepdb" for RKey
 
 class Query is Node
 {

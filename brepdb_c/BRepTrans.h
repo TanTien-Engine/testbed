@@ -8,7 +8,7 @@
 
 namespace pm3 { class Polytope; }
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
 class BRepTrans

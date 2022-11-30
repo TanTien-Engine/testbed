@@ -1,4 +1,4 @@
-#include "wrap_BrepGraph.h"
+#include "wrap_BrepDB.h"
 #include "BRepTrans.h"
 #include "BRepKey.h"
 #include "RegionVisitor.h"
@@ -50,7 +50,7 @@ void w_RTree_load_from_file()
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto filepath = ves_tostring(1);
 
-    brepgraph::RTree::LoadFromFile(*rtree, filepath);
+    brepdbgraph::RTree::LoadFromFile(*rtree, filepath);
 }
 
 void w_RTree_insert()
@@ -60,7 +60,7 @@ void w_RTree_insert()
 
     uint8_t* data = nullptr;
     uint32_t length = 0;
-    brepgraph::BRepTrans::BRepToByteArray(*poly, &data, length);
+    brepdbgraph::BRepTrans::BRepToByteArray(*poly, &data, length);
 
     id_type id = 0;
 
@@ -78,13 +78,13 @@ void w_RTree_insert()
 
     ves_pop(ves_argnum());
 
-    auto rkey = std::make_shared<brepgraph::BRepKey>();
+    auto rkey = std::make_shared<brepdbgraph::BRepKey>();
     rkey->r = aabb;
     rkey->id = id;
 
     ves_pushnil();
-    ves_import_class("brepgraph", "RKey");
-    auto proxy = (tt::Proxy<brepgraph::BRepKey>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepgraph::BRepKey>));
+    ves_import_class("brepdb", "RKey");
+    auto proxy = (tt::Proxy<brepdbgraph::BRepKey>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepdbgraph::BRepKey>));
     proxy->obj = rkey;
     ves_pop(1);
 }
@@ -97,7 +97,7 @@ void w_RTree_insert_with_time()
 
     uint8_t* data = nullptr;
     uint32_t length = 0;
-    brepgraph::BRepTrans::BRepToByteArray(*poly, &data, length);
+    brepdbgraph::BRepTrans::BRepToByteArray(*poly, &data, length);
 
     id_type id = 0;
 
@@ -115,13 +115,13 @@ void w_RTree_insert_with_time()
 
     ves_pop(ves_argnum());
 
-    auto rkey = std::make_shared<brepgraph::BRepKey>();
+    auto rkey = std::make_shared<brepdbgraph::BRepKey>();
     rkey->r = aabb;
     rkey->id = id;
 
     ves_pushnil();
-    ves_import_class("brepgraph", "RKey");
-    auto proxy = (tt::Proxy<brepgraph::BRepKey>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepgraph::BRepKey>));
+    ves_import_class("brepdb", "RKey");
+    auto proxy = (tt::Proxy<brepdbgraph::BRepKey>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepdbgraph::BRepKey>));
     proxy->obj = rkey;
     ves_pop(1);
 }
@@ -129,7 +129,7 @@ void w_RTree_insert_with_time()
 void w_RTree_query()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
-    auto key = ((tt::Proxy<brepgraph::BRepKey>*)ves_toforeign(1))->obj;
+    auto key = ((tt::Proxy<brepdbgraph::BRepKey>*)ves_toforeign(1))->obj;
     
     auto visitor = std::make_unique<brepdb::ObjVisitor>();
     rtree->IntersectsWithQuery(key->r, *visitor);
@@ -143,7 +143,7 @@ void w_RTree_query()
         uint8_t* data = nullptr;
         item->GetData(len, &data);
 
-        auto poly = brepgraph::BRepTrans::BRepFromByteArray(data);
+        auto poly = brepdbgraph::BRepTrans::BRepFromByteArray(data);
         delete[] data;
 
         polys.push_back(poly);
@@ -168,7 +168,7 @@ void w_RTree_query()
 void w_RTree_query_with_time()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
-    auto key = ((tt::Proxy<brepgraph::BRepKey>*)ves_toforeign(1))->obj;
+    auto key = ((tt::Proxy<brepdbgraph::BRepKey>*)ves_toforeign(1))->obj;
 
     double tmin = ves_tonumber(2);
     double tmax = ves_tonumber(3);
@@ -189,7 +189,7 @@ void w_RTree_query_with_time()
         uint8_t* data = nullptr;
         item->GetData(len, &data);
 
-        auto poly = brepgraph::BRepTrans::BRepFromByteArray(data);
+        auto poly = brepdbgraph::BRepTrans::BRepFromByteArray(data);
         delete[] data;
 
         polys.push_back(poly);
@@ -215,7 +215,7 @@ void w_RTree_get_all_leaves()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
 
-    brepgraph::RegionVisitor visitor;
+    brepdbgraph::RegionVisitor visitor;
     rtree->LevelTraversal(visitor);
     auto& regions = visitor.GetRegions();
 
@@ -249,7 +249,7 @@ void w_RTree_query_leaves()
     const double max[] = { c.xmax, c.ymax, c.zmax, 0 };
     brepdb::Region region(min, max);
 
-    brepgraph::RegionVisitor visitor;
+    brepdbgraph::RegionVisitor visitor;
     rtree->ContainsWhatQuery(region, visitor);
     auto& regions = visitor.GetRegions();
 
@@ -275,7 +275,7 @@ void w_RTree_query_leaves()
 
 void w_RKey_allocate()
 {
-    auto key = std::make_shared<brepgraph::BRepKey>();
+    auto key = std::make_shared<brepdbgraph::BRepKey>();
 
     auto num = ves_argnum();
     if (num == 2)
@@ -287,16 +287,16 @@ void w_RKey_allocate()
         key->r.Combine(brepdb::Point(max));
     }
 
-    auto proxy = (tt::Proxy<brepgraph::BRepKey>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepgraph::BRepKey>));
+    auto proxy = (tt::Proxy<brepdbgraph::BRepKey>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepdbgraph::BRepKey>));
     proxy->obj = key;
 
 }
 
 int w_RKey_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<brepgraph::BRepKey>*)(data);
+    auto proxy = (tt::Proxy<brepdbgraph::BRepKey>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<brepgraph::BRepKey>);
+    return sizeof(tt::Proxy<brepdbgraph::BRepKey>);
 }
 
 void w_RFile_allocate()
@@ -315,10 +315,10 @@ int w_RFile_finalize(void* data)
 
 }
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
-VesselForeignMethodFn BrepGraphBindMethod(const char* signature)
+VesselForeignMethodFn BrepDBBindMethod(const char* signature)
 {
     if (strcmp(signature, "RTree.load_from_file(_)") == 0) return w_RTree_load_from_file;
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
@@ -331,7 +331,7 @@ VesselForeignMethodFn BrepGraphBindMethod(const char* signature)
     return nullptr;
 }
 
-void BrepGraphBindClass(const char* class_name, VesselForeignClassMethods* methods)
+void BrepDBBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
     if (strcmp(class_name, "RTree") == 0)
     {

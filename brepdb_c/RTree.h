@@ -2,7 +2,7 @@
 
 namespace brepdb { class RTree; }
 
-namespace brepgraph
+namespace brepdbgraph
 {
 
 class RTree
