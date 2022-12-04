@@ -1,0 +1,75 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.brush" for Brush
+import "maths" for Matrix44
+
+class Pattern is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_ARRAY),
+		]
+
+		this.params.add(NodeParam("dx", 0, { "min" : -10, "max" : 10 }))
+		this.params.add(NodeParam("dy", 0, { "min" : -10, "max" : 10 }))
+		this.params.add(NodeParam("nx", 1, { "integer" : true, "region" : 10 }))
+		this.params.add(NodeParam("ny", 1, { "integer" : true, "region" : 10 }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var dx = this.query_param("dx").value
+		var dy = this.query_param("dy").value
+		var nx = this.query_param("nx").value
+		var ny = this.query_param("ny").value
+
+		var geos = []
+
+		if (v_geo.value.shape is Brush)
+		{		
+			for (var y in 0..ny) 
+			{
+				for (var x in 0..nx)
+				{
+					var mat = Matrix44.init()
+					mat.translate(x * dx, 0, y * dy)
+
+					var new_geo = v_geo.value.clone()					
+					new_geo.shape.transform(mat)
+					geos.add(Variant(VAR_TYPE_GEO, new_geo))
+				}
+			}
+		}
+		else
+		{
+			for (var y in 0..ny) 
+			{
+				for (var x in 0..nx)
+				{
+					var new_geo = v_geo.value.clone()
+					new_geo.shape.translate(x * dx, y * dy)
+					geos.add(Variant(VAR_TYPE_GEO, new_geo))
+				}
+			}
+		}
+
+		return Variant(VAR_TYPE_ARRAY, geos)
+	}
+}

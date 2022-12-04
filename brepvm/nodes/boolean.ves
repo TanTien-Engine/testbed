@@ -1,0 +1,79 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+import "geometry" for Polytope
+
+class Boolean is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "base", VAR_TYPE_GEO),
+			Pin(this, "tool", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("operator", "intersect", { "combo" : [ "union", "intersect", "subtract" ] }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_base = Blueprint.calc_input_value(this, 0)
+		if (!v_base) {
+			return nil
+		}
+
+		var v_tool = Blueprint.calc_input_value(this, 1)
+		if (!v_tool) {
+			return nil
+		}
+
+		var a = []
+		this.get_polys(a, v_base)
+		var b = []
+		this.get_polys(b, v_tool)
+
+		var op = this.query_param("operator").value
+
+		return this.boolean_impl(a, b, op)
+	}
+
+	get_polys(dst, src)
+	{
+		if (src.type == VAR_TYPE_ARRAY) 
+		{
+			for (var v in src.value) {
+				this.get_polys(dst, v)
+			}
+		} 
+		else if (src.type == VAR_TYPE_GEO and src.value.shape is Brush) 
+		{
+			var brush = src.value.shape
+			for (var p in src.value.shape.polys) {
+				dst.add(p)
+			}
+		}
+	}
+
+	boolean_impl(a, b, op)
+	{
+		var polys = Polytope.boolean(op, a, b)
+		if (polys.isEmpty) {
+			return nil
+		} else {
+			var geo = VarGeo()
+			geo.shape = Brush(polys)
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+	}
+}

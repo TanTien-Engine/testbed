@@ -1,0 +1,7 @@
+import "brepvm.nodes.*"
+
+var BREPVM_NODES = [
+Clone, Transform, Extrude, Boolean,
+Pattern,
+Compiler,
+]

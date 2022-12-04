@@ -1,0 +1,64 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node0, 520.90770695254, 336.64202087305)
+
+var node1 = ::geograph::nodes::rect::Rect()
+node1.query_param("x").value = 0
+node1.query_param("y").value = 0
+node1.query_param("w").value = 1
+node1.query_param("h").value = 1
+node1.query_param("offset").value = false
+node1.query_param("fill").value = false
+node1.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node1, -353.18785741499, 390.55495791128)
+
+var node2 = ::brepvm::nodes::pattern::Pattern()
+node2.query_param("dx").value = 30
+node2.query_param("dy").value = 30
+node2.query_param("nx").value = 20
+node2.query_param("ny").value = 20
+
+_editor.add_node(node2, -191.43829197551, 540.32722461432)
+
+var node3 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node3.query_param("distance").value = 1.3286089897156
+
+_editor.add_node(node3, -158.95747915939, 340.13913272237)
+
+var node4 = ::blueprint::nodes::camera3d::Camera3d()
+
+node4.cam.position.set(51.515268725223, 9.4404275401134, 106.6422847334)
+node4.cam.yaw = -80
+node4.cam.pitch = -25
+node4.cam.zoom = 45
+node4.cam.update_vectors()
+node4.speed = 0.5
+
+_editor.add_node(node4, 262.16135706302, 216.50767450606)
+
+var node5 = ::brepvm::nodes::pattern::Pattern()
+node5.query_param("dx").value = 1.2
+node5.query_param("dy").value = 1.2
+node5.query_param("nx").value = 70
+node5.query_param("ny").value = 70
+
+_editor.add_node(node5, 11.47048841163, 305.11166051359)
+
+var node6 = ::geograph::nodes::brush_merge::BrushMerge()
+
+_editor.add_node(node6, 130.18295836646, 515.78245607486)
+
+var node7 = ::blueprint::nodes::cache::Cache()
+node7.query_param("disable").value = false
+
+_editor.add_node(node7, 268.35324705947, 506.18123652816)
+
+Blueprint.connect(node1, "polytope", node3, "geo")
+Blueprint.connect(node3, "geo", node5, "geo")
+Blueprint.connect(node5, "geo", node6, "list")
+Blueprint.connect(node6, "brush", node7, "var")
+Blueprint.connect(node7, "var", node0, "geos")
+Blueprint.connect(node4, "this", node0, "view_cam")
+Blueprint.connect(node1, "geo", node2, "geo")

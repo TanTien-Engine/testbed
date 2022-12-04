@@ -1,0 +1,61 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+import "geometry" for ShapeMaths
+
+class Extrude is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo",  VAR_TYPE_GEO),
+			Pin(this, "dist", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var v_dist = Blueprint.calc_input_value(this, 1)
+		if (!v_dist) {
+			return nil
+		}
+		var dist = v_dist.value
+
+		var out = nil
+
+		var shape = v_geo.value.shape
+		if (shape is Brush)
+		{
+			for (var poly in shape.polys) {
+				poly.extrude(dist)
+			}
+
+			out = v_geo
+		}
+		else
+		{
+			var poly = ShapeMaths.extrude(shape, dist)
+
+			var geo = VarGeo()
+			geo.shape = Brush([ poly ])
+			out = Variant(VAR_TYPE_GEO, geo)
+		}
+
+		return out
+	}
+}

@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_MATRIX4
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush, BrushInstanced
+
+class Transform is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var v_mat = Blueprint.calc_input_value(this, 1)
+		if (!v_mat) {
+			return nil
+		}
+
+		if (v_geo.value.shape is Brush) {
+			v_geo.value.shape.transform(v_mat.value)
+		} else if (v_geo.value.shape is BrushInstanced) {
+			v_geo.value.shape.brush.transform(v_mat.value)
+		}
+
+		return v_geo
+	}
+}
