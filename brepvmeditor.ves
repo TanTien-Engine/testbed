@@ -18,6 +18,11 @@ class Brepvmeditor is Editor
 			super.add_popup_node(node)
 		}
 
+		import "editor.geonodes" for GEO_NODES
+		for (var node in GEO_NODES) {
+			super.add_popup_node(node)
+		}
+
 		import "brepvmnodes" for BREPVM_NODES
 		for (var node in BREPVM_NODES) {
 			super.add_popup_node(node)

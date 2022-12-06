@@ -1,9 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geograph.brush" for Brush, BrushInstanced
+import "geograph.brush" for Brush
 import "brepvm" for BrepCode, BrepVM
 
 class Compiler is Node
@@ -14,43 +14,56 @@ class Compiler is Node
 
 		this.imports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
 		this.layout()
+
+		this.opcodes = nil
 	}
 
 	calc_value(idx)
 	{
-		var v_geo = Blueprint.calc_input_value(this, 0)
-		if (!v_geo) {
+		//if (!this.opcodes) {
+			var reg = this.compile_opcodes()
+		//}
+
+		if (!this.opcodes) {
 			return nil
 		}
 
-		var brush = v_geo.value.shape
-		var poly = brush.polys[0]
-
-		var v_mat = Blueprint.calc_input_value(this, 1)
-		if (!v_mat) {
-			return nil
-		}
-
-		var code = BrepCode.init()
-
-		code.store_polytope(0, poly)
-		code.clone_polytope(0, 1)
-		code.store_matrix4(0, v_mat.value)
-		code.transform_polytope(1, 0)
-
-		var vm = BrepVM.init(code)
+		var vm = BrepVM.init(this.opcodes)
 		vm.run()
-		var ret = vm.load_register(1)
+		var ret = vm.load_register(reg)
 
 		var geo = VarGeo()
 		geo.shape = Brush([ ret ])
 		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	compile_opcodes()
+	{
+		this.opcodes = BrepCode.init()
+
+		return this.calc_input_codes(this, 0)
+	}
+
+	calc_input_codes(curr_node, input_slot)
+	{
+		var pin = Blueprint.query_pin(curr_node.imports, input_slot)
+		if (!pin or pin.conns.isEmpty) {
+			return -1
+		}
+
+		var f_pin = pin.conns.front().from
+		var f_node = f_pin.node
+
+		if (f_node.has_method("calc_opcodes(_,_)")) {
+			return f_node.calc_opcodes(this.opcodes, f_pin.slot_idx)
+		}
+
+		return -1
 	}
 }

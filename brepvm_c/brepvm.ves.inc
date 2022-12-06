@@ -7,9 +7,13 @@ foreign class BrepCode
 
 	foreign store_polytope(reg, poly)
 	foreign store_matrix4(reg, mat4)
+	foreign store_shape(reg, shape)
+
+	foreign shape_to_polytope(shape, poly)
 
 	foreign clone_polytope(src, dst)
 	foreign transform_polytope(poly, mat4)
+	foreign extrude_polytope(poly, dist)
 }
 
 foreign class BrepVM

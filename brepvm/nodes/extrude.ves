@@ -58,4 +58,32 @@ class Extrude is Node
 
 		return out
 	}
+
+	calc_opcodes(opcodes, idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return -1
+		}
+
+		var dist = 0
+		var v_dist = Blueprint.calc_input_value(this, 1)
+		if (v_dist) {
+			dist = v_dist.value
+		}
+
+		var geo = v_geo.value.shape
+		if (geo is Brush)
+		{
+			opcodes.store_polytope(0, geo.polys[0])
+			opcodes.clone_polytope(0, 1)
+		}
+		else
+		{
+			opcodes.store_shape(0, geo)
+			opcodes.shape_to_polytope(0, 1)
+		}
+		opcodes.extrude_polytope(1, dist)
+		return 1
+	}
 }

@@ -1,6 +1,8 @@
 #include "BRepVM.h"
 #include "BRepOpcodes.h"
 
+#include <polymesh3/Polytope.h>
+
 namespace brepvmgraph
 {
 

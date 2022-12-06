@@ -6,6 +6,7 @@
 #include <vector>
 
 namespace pm3 { class Polytope; }
+namespace gs { class Shape2D; }
 
 namespace brepvmgraph
 {
@@ -17,6 +18,7 @@ enum class ValueType
     VECTOR3,
     MATRIX4,
     POLYTOPE,
+    SHAPE2D,
 };
 
 struct Value
@@ -28,6 +30,7 @@ struct Value
         sm::vec3* vec3;
         sm::mat4* mat4;
         pm3::Polytope* poly;
+        gs::Shape2D* shape2;
     } as;
 };
 

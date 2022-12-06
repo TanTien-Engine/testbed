@@ -42,4 +42,27 @@ class Transform is Node
 
 		return v_geo
 	}
+
+	calc_opcodes(opcodes, idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var v_mat = Blueprint.calc_input_value(this, 1)
+		if (!v_mat) {
+			return nil
+		}
+
+		var brush = v_geo.value.shape
+		var poly = brush.polys[0]
+		
+		opcodes.store_polytope(0, poly)
+		opcodes.clone_polytope(0, 1)
+		opcodes.store_matrix4(0, v_mat.value)
+		opcodes.transform_polytope(1, 0)
+
+		return 1
+	}
 }
