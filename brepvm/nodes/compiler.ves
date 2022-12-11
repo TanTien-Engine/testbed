@@ -2,9 +2,9 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geograph.brush" for Brush
-import "brepvm" for BrepCode, BrepVM
+import "geograph.variant" for VAR_TYPE_GEO
+import "rendergraph.variant" for VAR_TYPE_VERTEX_ARRAY
+import "brepvm" for BrepCode, BrepVM, BrepTools
 
 class Compiler is Node
 {
@@ -17,40 +17,55 @@ class Compiler is Node
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "va", VAR_TYPE_VERTEX_ARRAY),
 		]
 
 		this.layout()
 
-		this.opcodes = nil
+		this.opcodes = nil		
 	}
 
 	calc_value(idx)
 	{
-		//if (!this.opcodes) {
-			var reg = this.compile_opcodes()
-		//}
+		var num = 16
 
-		if (!this.opcodes) {
-			return nil
+		var vm_list = []
+		var reg_list = []
+		for (var i in 0..num)
+		{
+			var opcodes = BrepCode.init()
+			var reg = Compiler.calc_input_codes(opcodes, this, 0, i)
+			opcodes.poly_to_vbuf(reg, reg)
+			var vm = BrepVM.init(opcodes)
+
+			vm_list.add(vm)
+			reg_list.add(reg)
 		}
 
-		var vm = BrepVM.init(this.opcodes)
-		vm.run()
-		var ret = vm.load_register(reg)
+		BrepTools.run_vm(vm_list)
 
-		var geo = VarGeo()
-		geo.shape = Brush([ ret ])
-		return Variant(VAR_TYPE_GEO, geo)
+//		for (var i in 0..num) {
+//			vm_list[i].run()
+//		}
+
+		var vao_list = []
+		for (var i in 0..num) {
+			vao_list.add(vm_list[i].load(reg_list[i]))
+		}
+		var vao = BrepTools.build_vao(vao_list)
+		return Variant(VAR_TYPE_VERTEX_ARRAY, vao)
 	}
 
-	compile_opcodes()
+	compile_opcodes(thread)
 	{
 		this.opcodes = BrepCode.init()
 
-		return this.calc_input_codes(this, 0)
+		var reg = Compiler.calc_input_codes(this.opcodes, this, 0, thread)
+		this.opcodes.poly_to_vbuf(reg, reg)
+		return reg
 	}
 
-	calc_input_codes(curr_node, input_slot)
+	static calc_input_codes(opcodes, curr_node, input_slot, thread)
 	{
 		var pin = Blueprint.query_pin(curr_node.imports, input_slot)
 		if (!pin or pin.conns.isEmpty) {
@@ -60,8 +75,8 @@ class Compiler is Node
 		var f_pin = pin.conns.front().from
 		var f_node = f_pin.node
 
-		if (f_node.has_method("calc_opcodes(_,_)")) {
-			return f_node.calc_opcodes(this.opcodes, f_pin.slot_idx)
+		if (f_node.has_method("calc_opcodes(_,_,_)")) {
+			return f_node.calc_opcodes(opcodes, f_pin.slot_idx, thread)
 		}
 
 		return -1

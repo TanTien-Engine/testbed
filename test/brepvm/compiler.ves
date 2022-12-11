@@ -1,128 +1,121 @@
-var node0 = ::blueprint::nodes::subgraph::Subgraph()
-node0.load_from_file(_editor, "../../../tantien/assets/blueprints/geograph/draw_geos.ves")
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
-_editor.add_node(node0, 872.13073295254, -484.08343852695)
+node0.cam.position.set(15.192456517884, 6.4253692260427, 14.407513316114)
+node0.cam.yaw = -134.7
+node0.cam.pitch = -32.4
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.5
 
-var node1 = ::blueprint::nodes::camera3d::Camera3d()
+_editor.add_node(node0, 446.13274215393, -2.7182485303023)
 
-node1.cam.position.set(10.4633137674, 11.783032601852, 11.689854850403)
-node1.cam.yaw = -122.1
-node1.cam.pitch = -43.1
-node1.cam.zoom = 45
-node1.cam.update_vectors()
-node1.speed = 0.5
+var node1 = ::geograph::nodes::box::Box()
+node1.query_param("size").value.set(0.1, 0.15, 0.1)
+node1.query_param("pos").value.set(0, 0, 0)
+node1.query_param("offset_x").value = false
+node1.query_param("offset_y").value = false
+node1.query_param("offset_z").value = false
 
-_editor.add_node(node1, 676.70489306302, -599.08188489394)
+_editor.add_node(node1, -720.46431075572, -165.08862055291)
 
-var node2 = ::geograph::nodes::brush_merge::BrushMerge()
+var node2 = ::brepvm::nodes::transform::Transform()
 
-_editor.add_node(node2, 535.41598436646, -440.13300332514)
+_editor.add_node(node2, -237.5410953157, -106.70591039432)
 
-var node3 = ::blueprint::nodes::cache::Cache()
-node3.query_param("disable").value = false
+var node3 = ::blueprint::nodes::matrix::Matrix()
 
-_editor.add_node(node3, 673.69627305947, -450.94422287184)
+_editor.add_node(node3, -413.56836804297, -147.1240922125)
 
-var node4 = ::geograph::nodes::box::Box()
-node4.query_param("size").value.set(1, 1, 1)
-node4.query_param("pos").value.set(0, 0, 0)
-node4.query_param("offset_x").value = false
-node4.query_param("offset_y").value = false
-node4.query_param("offset_z").value = false
+var node4 = ::blueprint::nodes::number3::Number3()
 
-_editor.add_node(node4, -720.46431075572, -165.08862055291)
+node4.value.set(2, 0, 1)
+
+_editor.add_node(node4, -567.50853606428, -201.17310206102)
 
 var node5 = ::brepvm::nodes::transform::Transform()
 
-_editor.add_node(node5, -237.5410953157, -106.70591039432)
+_editor.add_node(node5, 49.952676502485, -188.80254675795)
 
 var node6 = ::blueprint::nodes::matrix::Matrix()
 
-_editor.add_node(node6, -413.56836804297, -147.1240922125)
+_editor.add_node(node6, -119.61011349752, -227.44934675795)
 
 var node7 = ::blueprint::nodes::number3::Number3()
 
-node7.value.set(2, 0, 1)
+node7.value.set(2, 1, 0)
 
-_editor.add_node(node7, -567.50853606428, -201.17310206102)
+_editor.add_node(node7, -286.59168126612, -284.61122367839)
 
-var node8 = ::blueprint::nodes::merge::Merge()
+var node8 = ::blueprint::nodes::cache::Cache()
+node8.query_param("disable").value = false
 
-_editor.add_node(node8, 405.18617741158, -449.39681948523)
+_editor.add_node(node8, -575.73329429488, -74.89468928512)
 
-var node9 = ::brepvm::nodes::transform::Transform()
+var node9 = ::brepvm::nodes::clone::Clone()
 
-_editor.add_node(node9, 49.952676502485, -188.80254675795)
+_editor.add_node(node9, -422.944525, -64.86647175293)
 
-var node10 = ::blueprint::nodes::matrix::Matrix()
+var node10 = ::brepvm::nodes::compiler::Compiler()
 
-_editor.add_node(node10, -119.61011349752, -227.44934675795)
+_editor.add_node(node10, 451.53657641713, -137.39660769447)
 
-var node11 = ::blueprint::nodes::number3::Number3()
+var node11 = ::blueprint::nodes::cache::Cache()
+node11.query_param("disable").value = false
 
-node11.value.set(2, 1, 0)
+_editor.add_node(node11, 45.135143295414, -57.45413867591)
 
-_editor.add_node(node11, -286.59168126612, -284.61122367839)
+var node12 = ::geograph::nodes::rect::Rect()
+node12.query_param("x").value = 0
+node12.query_param("y").value = 0
+node12.query_param("w").value = 0.1
+node12.query_param("h").value = 0.1
+node12.query_param("offset").value = false
+node12.query_param("fill").value = false
+node12.query_param("color").value.set(1, 0, 0)
 
-var node12 = ::blueprint::nodes::cache::Cache()
-node12.query_param("disable").value = false
+_editor.add_node(node12, -214.92352460937, -591.88481738281)
 
-_editor.add_node(node12, -575.73329429488, -74.89468928512)
+var node13 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node13.query_param("distance").value = 1.9735895395279
 
-var node13 = ::brepvm::nodes::clone::Clone()
+_editor.add_node(node13, -77.011008362908, -455.06929735052)
 
-_editor.add_node(node13, -422.944525, -64.86647175293)
+var node14 = ::brepvm::nodes::extrude::Extrude()
 
-var node14 = ::brepvm::nodes::compiler::Compiler()
+_editor.add_node(node14, 65.86044169922, -507.82557265625)
 
-_editor.add_node(node14, 232.46189873118, -347.37399612422)
+var node15 = ::blueprint::nodes::number::Number()
 
-var node15 = ::blueprint::nodes::cache::Cache()
-node15.query_param("disable").value = false
+node15.value = 0.15
 
-_editor.add_node(node15, 45.135143295414, -57.45413867591)
+_editor.add_node(node15, -73.196280151367, -551.72057207031)
 
-var node16 = ::geograph::nodes::rect::Rect()
-node16.query_param("x").value = 0
-node16.query_param("y").value = 0
-node16.query_param("w").value = 1
-node16.query_param("h").value = 1
-node16.query_param("offset").value = false
-node16.query_param("fill").value = false
-node16.query_param("color").value.set(1, 0, 0)
+var node16 = ::brepvm::nodes::pattern::Pattern()
+node16.query_param("dx").value = 0.12
+node16.query_param("dy").value = 0.12
+node16.query_param("nx").value = 1000
+node16.query_param("ny").value = 1000
 
-_editor.add_node(node16, -214.92352460937, -591.88481738281)
+_editor.add_node(node16, 275.87502359375, -156.74054228516)
 
-var node17 = ::geograph::nodes::poly_extrude::PolyExtrude()
-node17.query_param("distance").value = 1.9735895395279
+var node17 = ::blueprint::nodes::subgraph::Subgraph()
+node17.load_from_file(_editor, "../tools/draw_geos.ves")
 
-_editor.add_node(node17, -77.011008362908, -455.06929735052)
+_editor.add_node(node17, 680.29941322314, -63.333512396693)
 
-var node18 = ::brepvm::nodes::extrude::Extrude()
-
-_editor.add_node(node18, 65.86044169922, -507.82557265625)
-
-var node19 = ::blueprint::nodes::number::Number()
-
-node19.value = 1
-
-_editor.add_node(node19, -73.196280151367, -551.72057207031)
-
-Blueprint.connect(node16, "geo", node18, "geo")
-Blueprint.connect(node19, "v", node18, "dist")
-Blueprint.connect(node16, "geo", node17, "geo")
-Blueprint.connect(node11, "v3", node10, "translation")
+Blueprint.connect(node12, "geo", node14, "geo")
+Blueprint.connect(node15, "v", node14, "dist")
+Blueprint.connect(node12, "geo", node13, "geo")
 Blueprint.connect(node7, "v3", node6, "translation")
-Blueprint.connect(node4, "geo", node12, "var")
-Blueprint.connect(node12, "var", node13, "geo")
-Blueprint.connect(node13, "geo", node5, "geo")
+Blueprint.connect(node4, "v3", node3, "translation")
+Blueprint.connect(node1, "geo", node16, "geo")
+Blueprint.connect(node16, "geo", node10, "geo")
+Blueprint.connect(node1, "geo", node8, "var")
+Blueprint.connect(node8, "var", node9, "geo")
+Blueprint.connect(node9, "geo", node2, "geo")
+Blueprint.connect(node3, "mat", node2, "mat")
+Blueprint.connect(node2, "geo", node11, "var")
+Blueprint.connect(node2, "geo", node5, "geo")
 Blueprint.connect(node6, "mat", node5, "mat")
-Blueprint.connect(node5, "geo", node15, "var")
-Blueprint.connect(node5, "geo", node9, "geo")
-Blueprint.connect(node10, "mat", node9, "mat")
-Blueprint.connect(node9, "geo", node14, "geo")
-Blueprint.connect(node14, "geo", node8, "in0")
-Blueprint.connect(node8, "list", node2, "list")
-Blueprint.connect(node2, "brush", node3, "var")
-Blueprint.connect(node3, "var", node0, "geos")
-Blueprint.connect(node1, "this", node0, "view_cam")
+Blueprint.connect(node0, "this", node17, "view_cam")
+Blueprint.connect(node10, "geo", node17, "va")

@@ -2,11 +2,19 @@
 #include "BRepCode.h"
 #include "BRepOpcodes.h"
 #include "BRepVM.h"
+#include "VertexBuffer.h"
 #include "modules/script/TransHelper.h"
+#include "modules/render/Render.h"
 
 #include <polymesh3/Polytope.h>
+#include <unirender/Device.h>
+#include <unirender/IndexBuffer.h>
+#include <unirender/VertexBuffer.h>
+#include <unirender/VertexInputAttribute.h>
+#include <unirender/VertexArray.h>
 
 #include <string>
+#include <thread>
 
 namespace
 {
@@ -22,6 +30,20 @@ int w_BrepCode_finalize(void* data)
     auto proxy = (tt::Proxy<brepvmgraph::BRepCode>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<brepvmgraph::BRepCode>);
+}
+
+void w_BrepCode_store_number()
+{
+    auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
+
+    uint8_t op = brepvmgraph::OP_STORE_NUMBER;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+
+    double num = ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&num), sizeof(double));
 }
 
 void w_BrepCode_store_polytope()
@@ -80,6 +102,20 @@ void w_BrepCode_shape_to_polytope()
     code->Write(reinterpret_cast<const char*>(&r_poly), sizeof(uint8_t));
 }
 
+void w_BrepCode_poly_to_vbuf()
+{
+    auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
+
+    uint8_t op = brepvmgraph::OP_POLY_TO_VBUF;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t r_poly = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&r_poly), sizeof(uint8_t));
+
+    uint8_t r_vbuf = (uint8_t)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&r_vbuf), sizeof(uint8_t));
+}
+
 void w_BrepCode_clone_polytope()
 {
     auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
@@ -122,6 +158,27 @@ void w_BrepCode_extrude_polytope()
     code->Write(reinterpret_cast<const char*>(&dist), sizeof(float));
 }
 
+void w_BrepCode_pattern_polytope()
+{
+    auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
+
+    uint8_t op = brepvmgraph::OP_PATTERN_POLY;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t r_poly = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&r_poly), sizeof(uint8_t));
+
+    float dx = (float)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&dx), sizeof(float));
+    float dy = (float)ves_tonumber(3);
+    code->Write(reinterpret_cast<const char*>(&dy), sizeof(float));
+
+    int nx = (int)ves_tonumber(4);
+    code->Write(reinterpret_cast<const char*>(&nx), sizeof(int));
+    int ny = (int)ves_tonumber(5);
+    code->Write(reinterpret_cast<const char*>(&ny), sizeof(int));
+}
+
 void w_BrepVM_allocate()
 {
     auto proxy = (tt::Proxy<brepvmgraph::BRepVM>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvmgraph::BRepCode>));
@@ -143,21 +200,108 @@ void w_BrepVM_run()
     vm->Run();
 }
 
-void w_BrepVM_load_register()
+void w_BrepVM_load()
 {
     auto vm = ((tt::Proxy<brepvmgraph::BRepVM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
     auto val = vm->Load(reg);
-    if (val.type == brepvmgraph::ValueType::POLYTOPE) 
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<brepvmgraph::Value>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvmgraph::Value>));
+    proxy->obj = std::make_shared<brepvmgraph::Value>(val);
+}
+
+void w_BrepTools_run_vm()
+{
+    std::vector<std::shared_ptr<brepvmgraph::BRepVM>> vms;
+    tt::list_to_foreigns(1, vms);
+
+    //for (auto& vm : vms)
+    //{
+    //    vm->Run();
+    //}
+
+    std::vector<std::thread> ts;
+    for (auto& vm : vms)
     {
-        ves_pop(ves_argnum());
-        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
-        proxy->obj = std::shared_ptr<pm3::Polytope>(val.as.poly);
-    } 
-    else 
-    {
-        ves_set_nil(0);
+        ts.push_back(std::thread([&]() {
+            vm->Run();
+        }));
     }
+    for (auto& t : ts) {
+        t.join();
+    }
+}
+
+void w_BrepTools_build_vao()
+{
+    std::vector<std::shared_ptr<brepvmgraph::Value>> vals;
+    tt::list_to_foreigns(1, vals);
+
+    size_t v_size = 0, i_size = 0;
+    for (auto& v : vals) {
+        v_size += v->as.vbuf->GetVBuf().size();
+        i_size += v->as.vbuf->GetIBuf().size();
+    }
+
+    std::vector<float>    vdata;
+    std::vector<uint32_t> idata;
+    vdata.reserve(v_size);
+    idata.reserve(i_size);
+    for (auto& v : vals)
+    {
+        uint32_t offset = vdata.size() / 8;
+
+        auto& _vdata = v->as.vbuf->GetVBuf();
+        std::copy(_vdata.begin(), _vdata.end(), std::back_inserter(vdata));
+
+        auto& _idata = v->as.vbuf->GetIBuf();
+        for (auto& i : _idata) {
+            idata.push_back(offset + i);
+        }
+    }
+
+    auto dev = tt::Render::Instance()->Device();
+
+    auto va = dev->CreateVertexArray();
+
+    auto vbuf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, 0);
+    auto vbuf_sz = sizeof(float) * vdata.size();
+    vbuf->Reserve(vbuf_sz);
+    vbuf->ReadFromMemory(vdata.data(), vbuf_sz, 0);
+    va->SetVertexBuffer(vbuf);
+
+    auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, 0);
+    auto ibuf_sz = sizeof(uint32_t) * idata.size();
+    ibuf->SetCount(idata.size());
+    ibuf->Reserve(ibuf_sz);
+    ibuf->ReadFromMemory(idata.data(), ibuf_sz, 0);
+    ibuf->SetDataType(ur::IndexBufferDataType::UnsignedInt);
+    va->SetIndexBuffer(ibuf);
+
+    std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs;
+    vbuf_attrs.resize(4);
+    // pos
+    vbuf_attrs[0] = std::make_shared<ur::VertexInputAttribute>(
+        0, ur::ComponentDataType::Float, 3, 0, 32
+        );
+    // col
+    vbuf_attrs[1] = std::make_shared<ur::VertexInputAttribute>(
+        1, ur::ComponentDataType::Float, 3, 12, 32
+        );
+    // mat_id
+    vbuf_attrs[2] = std::make_shared<ur::VertexInputAttribute>(
+        2, ur::ComponentDataType::Float, 1, 24, 32
+        );
+    // offset
+    vbuf_attrs[3] = std::make_shared<ur::VertexInputAttribute>(
+        3, ur::ComponentDataType::Float, 1, 28, 32
+        );
+    va->SetVertexBufferAttrs(vbuf_attrs);
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::VertexArray>));
+    proxy->obj = va;
 }
 
 }
@@ -167,16 +311,22 @@ namespace brepvmgraph
 
 VesselForeignMethodFn BrepVMBindMethod(const char* signature)
 {
+    if (strcmp(signature, "BrepCode.store_number(_,_)") == 0) return w_BrepCode_store_number;
     if (strcmp(signature, "BrepCode.store_polytope(_,_)") == 0) return w_BrepCode_store_polytope;
     if (strcmp(signature, "BrepCode.store_matrix4(_,_)") == 0) return w_BrepCode_store_matrix4;
     if (strcmp(signature, "BrepCode.store_shape(_,_)") == 0) return w_BrepCode_store_shape;
     if (strcmp(signature, "BrepCode.shape_to_polytope(_,_)") == 0) return w_BrepCode_shape_to_polytope;
+    if (strcmp(signature, "BrepCode.poly_to_vbuf(_,_)") == 0) return w_BrepCode_poly_to_vbuf;
     if (strcmp(signature, "BrepCode.clone_polytope(_,_)") == 0) return w_BrepCode_clone_polytope;
     if (strcmp(signature, "BrepCode.transform_polytope(_,_)") == 0) return w_BrepCode_transform_polytope;
     if (strcmp(signature, "BrepCode.extrude_polytope(_,_)") == 0) return w_BrepCode_extrude_polytope;
+    if (strcmp(signature, "BrepCode.pattern_polytope(_,_,_,_,_)") == 0) return w_BrepCode_pattern_polytope;
 
     if (strcmp(signature, "BrepVM.run()") == 0) return w_BrepVM_run;
-    if (strcmp(signature, "BrepVM.load_register(_)") == 0) return w_BrepVM_load_register;
+    if (strcmp(signature, "BrepVM.load(_)") == 0) return w_BrepVM_load;
+
+    if (strcmp(signature, "static BrepTools.run_vm(_)") == 0) return w_BrepTools_run_vm;
+    if (strcmp(signature, "static BrepTools.build_vao(_)") == 0) return w_BrepTools_build_vao;
 
 	return nullptr;
 }

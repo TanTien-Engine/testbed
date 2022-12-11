@@ -1,0 +1,128 @@
+var node0 = ::rendergraph::nodes::draw::Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, 1050.5038035957, -251.76447758435)
+
+var node1 = ::rendergraph::nodes::shader::Shader()
+node1.query_param("inc_dir").value = ""
+
+node1.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+out VS_OUT {
+    vec3 frag_pos;
+} vs_out;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+};
+
+void main()
+{
+	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
+node1.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 frag_pos;
+} fs_in;
+
+uniform UBO
+{
+	vec3 light_pos;
+	vec3 cam_pos;
+};
+
+void main()
+{
+ 	vec3 dFdxPos = dFdx( fs_in.frag_pos );
+    vec3 dFdyPos = dFdy( fs_in.frag_pos );
+    vec3 N = normalize( cross(dFdxPos,dFdyPos ));
+
+	// ambient
+	vec3 ambient = vec3(0.25);
+
+	// diffuse
+	const vec3 LIGHT_POS = vec3(-5.0, -5.0, 10);
+	vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
+    float diff = max(dot(N, light_dir), 0.0);
+    vec3 diffuse = diff * vec3(1.0);
+
+    // specular
+    vec3 view_dir = normalize(cam_pos - fs_in.frag_pos);
+    vec3 halfway_dir = normalize(light_dir + view_dir);  
+    float spec = pow(max(dot(N, halfway_dir), 0.0), 32.0);
+    vec3 specular = spec * vec3(1.0);
+
+    FragColor = vec4(ambient + diffuse + specular, 1.0); 
+}
+"
+node1.cs = ""
+node1.render_gen()
+
+_editor.add_node(node1, 625.53667455228, -146.3677095474)
+
+var node2 = ::rendergraph::nodes::clear::Clear()
+
+node2.masks = [ "color", "depth" ]
+node2.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node2, 844.2152889827, -69.94878334887)
+
+var node3 = ::blueprint::nodes::perspective::Perspective()
+
+node3.fovy = 45
+node3.aspect = 0
+node3.znear = 0.1
+node3.zfar = 100
+
+_editor.add_node(node3, 414.70400748731, -143.2600753211)
+
+var node4 = ::blueprint::nodes::proxy::Proxy()
+
+node4.real_name = "view_cam"
+node4.init_real_node(::blueprint::nodes::camera3d::Camera3d())
+
+_editor.add_node(node4, 409.76615286487, 48.85559416076)
+
+var node5 = ::blueprint::nodes::number3::Number3()
+
+node5.value.set(5.9766573905945, 5.6433238983154, 5.3099908828735)
+
+_editor.add_node(node5, 422.41009621452, -309.25700607071)
+
+var node6 = ::blueprint::nodes::input::Input()
+
+node6.var_name = "va"
+node6.var_type = "va"
+
+_editor.add_node(node6, 689.73975830078, -366.43550109863)
+
+var node7 = ::blueprint::nodes::cache::Cache()
+node7.query_param("disable").value = false
+
+_editor.add_node(node7, 847.23921508789, -363.24875488281)
+
+Blueprint.connect(node6, "var", node7, "var")
+Blueprint.connect(node4, "zoom", node3, "fovy")
+Blueprint.connect(node4, "mat", node1, "view")
+Blueprint.connect(node3, "mat", node1, "projection")
+Blueprint.connect(node5, "v3", node1, "light_pos")
+Blueprint.connect(node4, "pos", node1, "cam_pos")
+Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node7, "var", node0, "va")

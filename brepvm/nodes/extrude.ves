@@ -59,7 +59,7 @@ class Extrude is Node
 		return out
 	}
 
-	calc_opcodes(opcodes, idx)
+	calc_opcodes(opcodes, idx, thread)
 	{
 		var v_geo = Blueprint.calc_input_value(this, 0)
 		if (!v_geo) {

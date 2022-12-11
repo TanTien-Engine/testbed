@@ -6,6 +6,7 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
 import "geograph.brush" for Brush
 import "maths" for Matrix44
+import "math" for Math
 
 class Pattern is Node
 {
@@ -71,5 +72,34 @@ class Pattern is Node
 		}
 
 		return Variant(VAR_TYPE_ARRAY, geos)
+	}
+
+	calc_opcodes(opcodes, idx, thread)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return -1
+		}
+
+		var dx = this.query_param("dx").value
+		var dy = this.query_param("dy").value
+		var nx = this.query_param("nx").value
+		var ny = this.query_param("ny").value
+
+		var tot_x = dx * nx
+		var tot_y = dy * ny
+		var x = Math.mod(thread, 4)
+		var y = Math.floor(thread / 4)
+		var mat = Matrix44.init()
+		mat.translate(tot_x / 4 * x, 0, tot_y / 4 * y)
+
+		var geo = v_geo.value.shape
+		opcodes.store_polytope(0, geo.polys[0])
+		opcodes.clone_polytope(0, 1)
+		opcodes.store_matrix4(0, mat)
+		opcodes.transform_polytope(1, 0)
+		opcodes.pattern_polytope(1, dx, dy, nx / 4, ny / 4)
+
+		return 1
 	}
 }

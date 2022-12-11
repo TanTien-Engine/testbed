@@ -11,6 +11,8 @@ namespace gs { class Shape2D; }
 namespace brepvmgraph
 {
 
+class VertexBuffer;
+
 enum class ValueType
 {
     NIL,
@@ -19,6 +21,7 @@ enum class ValueType
     MATRIX4,
     POLYTOPE,
     SHAPE2D,
+    VERTEX_BUFFER,
 };
 
 struct Value
@@ -31,6 +34,7 @@ struct Value
         sm::mat4* mat4;
         pm3::Polytope* poly;
         gs::Shape2D* shape2;
+        VertexBuffer* vbuf;
     } as;
 };
 

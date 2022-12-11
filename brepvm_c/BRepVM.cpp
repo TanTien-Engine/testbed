@@ -3,6 +3,8 @@
 
 #include <polymesh3/Polytope.h>
 
+#include <thread>
+
 namespace brepvmgraph
 {
 
@@ -27,6 +29,9 @@ BRepVM::~BRepVM()
             break;
         case ValueType::POLYTOPE:
             delete val.as.poly;
+            break;
+        case ValueType::VERTEX_BUFFER:
+            delete val.as.vbuf;
             break;
         default:
             assert(0);
