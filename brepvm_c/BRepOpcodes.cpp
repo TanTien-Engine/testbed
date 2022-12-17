@@ -1,6 +1,7 @@
 #include "BRepOpcodes.h"
 #include "BRepVM.h"
 #include "VertexBuffer.h"
+#include "BRep.h"
 
 #include <polymesh3/Polytope.h>
 #include <geoshape/Shape2D.h>
@@ -132,13 +133,45 @@ void OpCodeImpl::ShapeToPoly(BRepVM* vm)
     vm->m_tmp_vals.push_back(vm->m_registers[r_dst]);
 }
 
-void OpCodeImpl::PolyToVBuf(BRepVM* vm)
+void OpCodeImpl::PolyToBody(BRepVM* vm)
 {
     uint8_t r_src = vm->NextByte();
     assert(r_src >= 0 && r_src < REGISTER_COUNT
         && vm->m_registers[r_src].type == ValueType::POLYTOPE);
 
     auto src = vm->m_registers[r_src].as.poly;
+
+    auto lump = std::make_shared<Lump>();
+    lump->points.reserve(src->Points().size());
+    for (auto& p : src->Points()) {
+        lump->points.push_back(p->pos);
+    }
+    for (auto& f : src->Faces()) {
+        std::copy(f->border.begin(), f->border.end(), std::back_inserter(lump->faces));
+        lump->faces_num.push_back(f->border.size());
+    }
+
+    auto dst = new Body;
+    dst->lumps.push_back(lump);
+
+    uint8_t r_dst = vm->NextByte();
+    if (dst) {
+        vm->m_registers[r_dst].type = ValueType::BODY;
+        vm->m_registers[r_dst].as.body = dst;
+    } else {
+        vm->m_registers[r_dst].type = ValueType::NIL;
+    }
+
+    vm->m_tmp_vals.push_back(vm->m_registers[r_dst]);
+}
+
+void OpCodeImpl::BodyToVBuf(BRepVM* vm)
+{
+    uint8_t r_src = vm->NextByte();
+    assert(r_src >= 0 && r_src < REGISTER_COUNT
+        && vm->m_registers[r_src].type == ValueType::BODY);
+
+    auto src = vm->m_registers[r_src].as.body;
     auto dst = new VertexBuffer(*src);
 
     uint8_t r_dst = vm->NextByte();
@@ -226,97 +259,58 @@ void OpCodeImpl::ExtrudePoly(BRepVM* vm)
     poly->BuildFromTopo();
 }
 
-void OpCodeImpl::PatternPoly(BRepVM* vm)
+void OpCodeImpl::TransformBody(BRepVM* vm)
 {
-    uint8_t r_poly = vm->NextByte();
-    assert(r_poly >= 0 && r_poly < REGISTER_COUNT
-        && vm->m_registers[r_poly].type == ValueType::POLYTOPE);
+    uint8_t r_body = vm->NextByte();
+    assert(r_body >= 0 && r_body < REGISTER_COUNT 
+        && vm->m_registers[r_body].type == ValueType::BODY);
+    uint8_t r_mat4 = vm->NextByte();
+    assert(r_mat4 >= 0 && r_mat4 < REGISTER_COUNT
+        && vm->m_registers[r_mat4].type == ValueType::MATRIX4);
+
+    auto body = vm->m_registers[r_body].as.body;
+    auto mat4 = vm->m_registers[r_mat4].as.mat4;
+
+    for (auto& lump : body->lumps) {
+        for (auto& p : lump->points) {
+            p = *mat4 * p;
+        }
+    }
+}
+
+void OpCodeImpl::PatternBody(BRepVM* vm)
+{
+    uint8_t r_body = vm->NextByte();
+    assert(r_body >= 0 && r_body < REGISTER_COUNT
+        && vm->m_registers[r_body].type == ValueType::BODY);
     float dx = read_number<float>(vm);
     float dy = read_number<float>(vm);
     int nx = read_number<int>(vm);
     int ny = read_number<int>(vm);
 
-    auto poly = vm->m_registers[r_poly].as.poly;
+    auto body = vm->m_registers[r_body].as.body;
 
-    pm3::Polytope::Raw old_raw;
-    old_raw.points.reserve(poly->Points().size());
-    for (auto& p : poly->Points()) {
-        old_raw.points.push_back(p->pos);
-    }
-    for (auto& f : poly->Faces()) {
-        std::copy(f->border.begin(), f->border.end(), std::back_inserter(old_raw.faces));
-        old_raw.faces_num.push_back(f->border.size());
-    }
-
-    auto ret = new pm3::Polytope;
+    auto ret = new Body;
     for (int y = 0; y < ny; ++y)
     {
         for (int x = 0; x < nx; ++x)
         {
             auto mat = sm::mat4::Translated(x * dx, 0, y * dy);
 
-            auto new_raw = std::make_shared<pm3::Polytope::Raw>(old_raw);
-            for (auto& p : new_raw->points) {
-                p = mat * p;
-            }
+            for (auto& lump : body->lumps)
+            {
+                auto new_lump = std::make_shared<brepvmgraph::Lump>(*lump);
+                for (auto& p : new_lump->points) {
+                    p = mat * p;
+                }
 
-            ret->AddRaw(new_raw);
+                ret->lumps.push_back(new_lump);
+            }
         }
     }
 
-    vm->m_registers[r_poly].as.poly = ret;
+    vm->m_registers[r_body].as.body = ret;
 }
-
-//void OpCodeImpl::PatternPoly(BRepVM* vm)
-//{
-//    uint8_t r_poly = vm->NextByte();
-//    assert(r_poly >= 0 && r_poly < REGISTER_COUNT
-//        && vm->m_registers[r_poly].type == ValueType::POLYTOPE);
-//    float dx = read_number<float>(vm);
-//    float dy = read_number<float>(vm);
-//    int nx = read_number<int>(vm);
-//    int ny = read_number<int>(vm);
-//
-//    auto poly = vm->m_registers[r_poly].as.poly;
-//
-//    pm3::Polytope old_poly = *poly;
-//
-//    std::vector<pm3::Polytope::PointPtr> points;
-//    std::vector<pm3::Polytope::FacePtr>  faces;
-//    points.reserve(nx * ny * 8);
-//    faces.reserve(nx * ny * 6);
-//    for (int y = 0; y < ny; ++y)
-//    {
-//        for (int x = 0; x < nx; ++x)
-//        {
-//            auto mat = sm::mat4::Translated(x * dx, 0, y * dy);
-//
-//            auto new_poly = std::make_shared<pm3::Polytope>(old_poly);
-//            for (auto& p : new_poly->Points()) {
-//                p->pos = mat * p->pos;
-//            }
-//
-//            size_t offset = points.size();
-//            for (auto& f : new_poly->Faces())
-//            {
-//                for (auto& p : f->border) {
-//                    p += offset;
-//                }
-//            }
-//
-//            for (auto& p : new_poly->Points()) {
-//                points.push_back(p);
-//            }
-//            for (auto& f : new_poly->Faces()) {
-//                faces.push_back(f);
-//            }
-//
-//            //poly->Combine(*new_poly);
-//        }
-//    }
-//
-//    vm->m_registers[r_poly].as.poly = new pm3::Polytope(points, faces);
-//}
 
 void OpCodeImpl::OpCodeInit(BRepVM* vm)
 {
@@ -326,12 +320,15 @@ void OpCodeImpl::OpCodeInit(BRepVM* vm)
     vm->m_opcodes[OP_STORE_SHAPE] = StoreShape;
 
     vm->m_opcodes[OP_SHAPE_TO_POLY] = ShapeToPoly;
-    vm->m_opcodes[OP_POLY_TO_VBUF] = PolyToVBuf;
+    vm->m_opcodes[OP_POLY_TO_BODY] = PolyToBody;
+    vm->m_opcodes[OP_BODY_TO_VBUF] = BodyToVBuf;
 
     vm->m_opcodes[OP_CLONE_POLY] = ClonePoly;
     vm->m_opcodes[OP_TRANSFORM_POLY] = TransformPoly;
     vm->m_opcodes[OP_EXTRUDE_POLY] = ExtrudePoly;
-    vm->m_opcodes[OP_PATTERN_POLY] = PatternPoly;
+
+    vm->m_opcodes[OP_TRANSFORM_BODY] = TransformBody;
+    vm->m_opcodes[OP_PATTERN_BODY] = PatternBody;
 }
 
 }

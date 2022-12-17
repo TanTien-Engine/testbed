@@ -11,12 +11,15 @@ foreign class BrepCode
 	foreign store_shape(reg, shape)
 
 	foreign shape_to_polytope(shape, poly)
-	foreign poly_to_vbuf(poly, vbuf)
+	foreign poly_to_body(poly, body)
+	foreign body_to_vbuf(body, vbuf)
 
 	foreign clone_polytope(src, dst)
 	foreign transform_polytope(poly, mat4)
 	foreign extrude_polytope(poly, dist)
-	foreign pattern_polytope(poly, dx, dy, nx, ny)
+
+	foreign transform_body(body, mat4)
+	foreign pattern_body(body, dx, dy, nx, ny)
 }
 
 foreign class BrepVM

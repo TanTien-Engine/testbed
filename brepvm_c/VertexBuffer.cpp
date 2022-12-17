@@ -1,32 +1,33 @@
 #include "VertexBuffer.h"
+#include "BRep.h"
 
-#include <polymesh3/Polytope.h>
+#include <sm/SM_Cube.h>
 
 namespace brepvmgraph
 {
 
-VertexBuffer::VertexBuffer(const pm3::Polytope& poly)
+VertexBuffer::VertexBuffer(const Body& body)
 {
-	Build(poly);
+    Build(body);
 }
 
-void VertexBuffer::Build(const pm3::Polytope& poly)
+void VertexBuffer::Build(const Body& body)
 {
     size_t v_num = 0, i_num = 0;
-    for (auto& raw : poly.GetRaws())
+    for (auto& lump : body.lumps)
     {
         // pos(3) + color(3) + mat(1) + offset(1)
-        v_num += raw->points.size() * 8;
-        i_num += raw->faces_num.size() * 6;
+        v_num += lump->points.size() * 8;
+        i_num += lump->faces_num.size() * 6;
     }
     m_vbuf.reserve(v_num);
     m_ibuf.reserve(i_num);
 
 	int start_idx = 0;
     sm::cube aabb;
-    for (auto& raw : poly.GetRaws())
+    for (auto& lump : body.lumps)
     {
-        for (auto& p : raw->points)
+        for (auto& p : lump->points)
         {
             // pos
             m_vbuf.push_back(p.x);
@@ -44,26 +45,26 @@ void VertexBuffer::Build(const pm3::Polytope& poly)
         }
 
         int begin = 0;
-        for (auto& num : raw->faces_num)
+        for (auto& num : lump->faces_num)
         {
             int end = begin + num;
 
             // fixme
             if (num == 4)
             {
-                m_ibuf.push_back(start_idx + raw->faces[begin + 0]);
-                m_ibuf.push_back(start_idx + raw->faces[begin + 1]);
-                m_ibuf.push_back(start_idx + raw->faces[begin + 2]);
+                m_ibuf.push_back(start_idx + lump->faces[begin + 0]);
+                m_ibuf.push_back(start_idx + lump->faces[begin + 1]);
+                m_ibuf.push_back(start_idx + lump->faces[begin + 2]);
 
-                m_ibuf.push_back(start_idx + raw->faces[begin + 0]);
-                m_ibuf.push_back(start_idx + raw->faces[begin + 2]);
-                m_ibuf.push_back(start_idx + raw->faces[begin + 3]);
+                m_ibuf.push_back(start_idx + lump->faces[begin + 0]);
+                m_ibuf.push_back(start_idx + lump->faces[begin + 2]);
+                m_ibuf.push_back(start_idx + lump->faces[begin + 3]);
             }
 
             begin += num;
         }
 
-        start_idx += raw->points.size();
+        start_idx += lump->points.size();
     }
 }
 

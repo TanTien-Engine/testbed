@@ -95,10 +95,10 @@ class Pattern is Node
 
 		var geo = v_geo.value.shape
 		opcodes.store_polytope(0, geo.polys[0])
-		opcodes.clone_polytope(0, 1)
+		opcodes.poly_to_body(0, 1)
 		opcodes.store_matrix4(0, mat)
-		opcodes.transform_polytope(1, 0)
-		opcodes.pattern_polytope(1, dx, dy, nx / 4, ny / 4)
+		opcodes.transform_body(1, 0)
+		opcodes.pattern_body(1, dx, dy, nx / 4, ny / 4)
 
 		return 1
 	}

@@ -35,7 +35,7 @@ class Compiler is Node
 		{
 			var opcodes = BrepCode.init()
 			var reg = Compiler.calc_input_codes(opcodes, this, 0, i)
-			opcodes.poly_to_vbuf(reg, reg)
+			opcodes.body_to_vbuf(reg, reg)
 			var vm = BrepVM.init(opcodes)
 
 			vm_list.add(vm)
@@ -61,7 +61,7 @@ class Compiler is Node
 		this.opcodes = BrepCode.init()
 
 		var reg = Compiler.calc_input_codes(this.opcodes, this, 0, thread)
-		this.opcodes.poly_to_vbuf(reg, reg)
+		this.opcodes.body_to_vbuf(reg, reg)
 		return reg
 	}
 

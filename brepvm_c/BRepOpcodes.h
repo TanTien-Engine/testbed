@@ -11,12 +11,15 @@ enum OpCode
 	OP_STORE_SHAPE,
 
 	OP_SHAPE_TO_POLY,
-	OP_POLY_TO_VBUF,
+	OP_POLY_TO_BODY,
+	OP_BODY_TO_VBUF,
 
 	OP_CLONE_POLY,
 	OP_TRANSFORM_POLY,
 	OP_EXTRUDE_POLY,
-	OP_PATTERN_POLY,
+
+	OP_TRANSFORM_BODY,
+	OP_PATTERN_BODY,
 };
 
 class BRepVM;
@@ -30,12 +33,15 @@ public:
 	static void StoreShape(BRepVM* vm);
 
 	static void ShapeToPoly(BRepVM* vm);
-	static void PolyToVBuf(BRepVM* vm);
+	static void PolyToBody(BRepVM* vm);
+	static void BodyToVBuf(BRepVM* vm);
 
 	static void ClonePoly(BRepVM* vm);
 	static void TransformPoly(BRepVM* vm);
 	static void ExtrudePoly(BRepVM* vm);
-	static void PatternPoly(BRepVM* vm);
+
+	static void TransformBody(BRepVM* vm);
+	static void PatternBody(BRepVM* vm);
 
 	static void OpCodeInit(BRepVM* vm);
 

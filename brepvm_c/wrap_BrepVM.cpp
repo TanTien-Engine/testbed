@@ -102,15 +102,29 @@ void w_BrepCode_shape_to_polytope()
     code->Write(reinterpret_cast<const char*>(&r_poly), sizeof(uint8_t));
 }
 
-void w_BrepCode_poly_to_vbuf()
+void w_BrepCode_poly_to_body()
 {
     auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
 
-    uint8_t op = brepvmgraph::OP_POLY_TO_VBUF;
+    uint8_t op = brepvmgraph::OP_POLY_TO_BODY;
     code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
 
     uint8_t r_poly = (uint8_t)ves_tonumber(1);
     code->Write(reinterpret_cast<const char*>(&r_poly), sizeof(uint8_t));
+
+    uint8_t r_body = (uint8_t)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&r_body), sizeof(uint8_t));
+}
+
+void w_BrepCode_body_to_vbuf()
+{
+    auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
+
+    uint8_t op = brepvmgraph::OP_BODY_TO_VBUF;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t r_body = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&r_body), sizeof(uint8_t));
 
     uint8_t r_vbuf = (uint8_t)ves_tonumber(2);
     code->Write(reinterpret_cast<const char*>(&r_vbuf), sizeof(uint8_t));
@@ -158,11 +172,25 @@ void w_BrepCode_extrude_polytope()
     code->Write(reinterpret_cast<const char*>(&dist), sizeof(float));
 }
 
-void w_BrepCode_pattern_polytope()
+void w_BrepCode_transform_body()
 {
     auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
 
-    uint8_t op = brepvmgraph::OP_PATTERN_POLY;
+    uint8_t op = brepvmgraph::OP_TRANSFORM_BODY;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t r_body = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&r_body), sizeof(uint8_t));
+
+    uint8_t r_mat4 = (uint8_t)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&r_mat4), sizeof(uint8_t));
+}
+
+void w_BrepCode_pattern_body()
+{
+    auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
+
+    uint8_t op = brepvmgraph::OP_PATTERN_BODY;
     code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
 
     uint8_t r_poly = (uint8_t)ves_tonumber(1);
@@ -316,11 +344,13 @@ VesselForeignMethodFn BrepVMBindMethod(const char* signature)
     if (strcmp(signature, "BrepCode.store_matrix4(_,_)") == 0) return w_BrepCode_store_matrix4;
     if (strcmp(signature, "BrepCode.store_shape(_,_)") == 0) return w_BrepCode_store_shape;
     if (strcmp(signature, "BrepCode.shape_to_polytope(_,_)") == 0) return w_BrepCode_shape_to_polytope;
-    if (strcmp(signature, "BrepCode.poly_to_vbuf(_,_)") == 0) return w_BrepCode_poly_to_vbuf;
+    if (strcmp(signature, "BrepCode.poly_to_body(_,_)") == 0) return w_BrepCode_poly_to_body;
+    if (strcmp(signature, "BrepCode.body_to_vbuf(_,_)") == 0) return w_BrepCode_body_to_vbuf;
     if (strcmp(signature, "BrepCode.clone_polytope(_,_)") == 0) return w_BrepCode_clone_polytope;
     if (strcmp(signature, "BrepCode.transform_polytope(_,_)") == 0) return w_BrepCode_transform_polytope;
     if (strcmp(signature, "BrepCode.extrude_polytope(_,_)") == 0) return w_BrepCode_extrude_polytope;
-    if (strcmp(signature, "BrepCode.pattern_polytope(_,_,_,_,_)") == 0) return w_BrepCode_pattern_polytope;
+    if (strcmp(signature, "BrepCode.transform_body(_,_)") == 0) return w_BrepCode_transform_body;
+    if (strcmp(signature, "BrepCode.pattern_body(_,_,_,_,_)") == 0) return w_BrepCode_pattern_body;
 
     if (strcmp(signature, "BrepVM.run()") == 0) return w_BrepVM_run;
     if (strcmp(signature, "BrepVM.load(_)") == 0) return w_BrepVM_load;
