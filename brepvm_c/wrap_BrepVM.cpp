@@ -2,7 +2,7 @@
 #include "BRepCode.h"
 #include "BRepOpcodes.h"
 #include "BRepVM.h"
-#include "VertexBuffer.h"
+#include "VBO.h"
 #include "modules/script/TransHelper.h"
 #include "modules/render/Render.h"
 
@@ -116,7 +116,7 @@ void w_BrepCode_poly_to_body()
     code->Write(reinterpret_cast<const char*>(&r_body), sizeof(uint8_t));
 }
 
-void w_BrepCode_body_to_vbuf()
+void w_BrepCode_body_to_vbo()
 {
     auto code = ((tt::Proxy<brepvmgraph::BRepCode>*)ves_toforeign(0))->obj;
 
@@ -126,8 +126,8 @@ void w_BrepCode_body_to_vbuf()
     uint8_t r_body = (uint8_t)ves_tonumber(1);
     code->Write(reinterpret_cast<const char*>(&r_body), sizeof(uint8_t));
 
-    uint8_t r_vbuf = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&r_vbuf), sizeof(uint8_t));
+    uint8_t r_vbo = (uint8_t)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&r_vbo), sizeof(uint8_t));
 }
 
 void w_BrepCode_clone_polytope()
@@ -268,8 +268,8 @@ void w_BrepTools_build_vao()
 
     size_t v_size = 0, i_size = 0;
     for (auto& v : vals) {
-        v_size += v->as.vbuf->GetVBuf().size();
-        i_size += v->as.vbuf->GetIBuf().size();
+        v_size += v->as.vbo->GetVBuf().size();
+        i_size += v->as.vbo->GetIBuf().size();
     }
 
     std::vector<float>    vdata;
@@ -280,10 +280,10 @@ void w_BrepTools_build_vao()
     {
         uint32_t offset = vdata.size() / 8;
 
-        auto& _vdata = v->as.vbuf->GetVBuf();
+        auto& _vdata = v->as.vbo->GetVBuf();
         std::copy(_vdata.begin(), _vdata.end(), std::back_inserter(vdata));
 
-        auto& _idata = v->as.vbuf->GetIBuf();
+        auto& _idata = v->as.vbo->GetIBuf();
         for (auto& i : _idata) {
             idata.push_back(offset + i);
         }
@@ -345,7 +345,7 @@ VesselForeignMethodFn BrepVMBindMethod(const char* signature)
     if (strcmp(signature, "BrepCode.store_shape(_,_)") == 0) return w_BrepCode_store_shape;
     if (strcmp(signature, "BrepCode.shape_to_polytope(_,_)") == 0) return w_BrepCode_shape_to_polytope;
     if (strcmp(signature, "BrepCode.poly_to_body(_,_)") == 0) return w_BrepCode_poly_to_body;
-    if (strcmp(signature, "BrepCode.body_to_vbuf(_,_)") == 0) return w_BrepCode_body_to_vbuf;
+    if (strcmp(signature, "BrepCode.body_to_vbo(_,_)") == 0) return w_BrepCode_body_to_vbo;
     if (strcmp(signature, "BrepCode.clone_polytope(_,_)") == 0) return w_BrepCode_clone_polytope;
     if (strcmp(signature, "BrepCode.transform_polytope(_,_)") == 0) return w_BrepCode_transform_polytope;
     if (strcmp(signature, "BrepCode.extrude_polytope(_,_)") == 0) return w_BrepCode_extrude_polytope;

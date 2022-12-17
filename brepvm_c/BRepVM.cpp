@@ -1,7 +1,7 @@
 #include "BRepVM.h"
 #include "BRepOpcodes.h"
 #include "BRep.h"
-#include "VertexBuffer.h"
+#include "VBO.h"
 
 #include <polymesh3/Polytope.h>
 
@@ -35,8 +35,8 @@ BRepVM::~BRepVM()
         case ValueType::BODY:
             delete val.as.body;
             break;
-        case ValueType::VERTEX_BUFFER:
-            delete val.as.vbuf;
+        case ValueType::VBO:
+            delete val.as.vbo;
             break;
         default:
             assert(0);

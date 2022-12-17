@@ -12,7 +12,7 @@ namespace brepvmgraph
 {
 
 struct Body;
-class VertexBuffer;
+class VBO;
 
 enum class ValueType
 {
@@ -25,7 +25,7 @@ enum class ValueType
     SHAPE2D,
 
     BODY,
-    VERTEX_BUFFER,
+    VBO,
 };
 
 struct Value
@@ -39,8 +39,8 @@ struct Value
         pm3::Polytope* poly;
         gs::Shape2D*   shape2;
 
-        Body*         body;
-        VertexBuffer* vbuf;
+        Body* body;
+        VBO*  vbo;
     } as;
 };
 

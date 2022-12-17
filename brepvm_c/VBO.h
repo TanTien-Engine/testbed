@@ -7,10 +7,10 @@ namespace brepvmgraph
 
 struct Body;
 
-class VertexBuffer
+class VBO
 {
 public:
-	VertexBuffer(const Body& body);
+	VBO(const Body& body);
 
 	auto& GetVBuf() const { return m_vbuf; }
 	auto& GetIBuf() const { return m_ibuf; }
@@ -22,6 +22,6 @@ private:
 	std::vector<float>    m_vbuf;
 	std::vector<uint32_t> m_ibuf;
 
-}; // VertexBuffer
+}; // VBO
 
 }

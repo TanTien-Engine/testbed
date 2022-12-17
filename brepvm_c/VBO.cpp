@@ -1,4 +1,4 @@
-#include "VertexBuffer.h"
+#include "VBO.h"
 #include "BRep.h"
 
 #include <sm/SM_Cube.h>
@@ -6,12 +6,12 @@
 namespace brepvmgraph
 {
 
-VertexBuffer::VertexBuffer(const Body& body)
+VBO::VBO(const Body& body)
 {
     Build(body);
 }
 
-void VertexBuffer::Build(const Body& body)
+void VBO::Build(const Body& body)
 {
     size_t v_num = 0, i_num = 0;
     for (auto& lump : body.lumps)

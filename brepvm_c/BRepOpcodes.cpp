@@ -1,6 +1,6 @@
 #include "BRepOpcodes.h"
 #include "BRepVM.h"
-#include "VertexBuffer.h"
+#include "VBO.h"
 #include "BRep.h"
 
 #include <polymesh3/Polytope.h>
@@ -172,12 +172,12 @@ void OpCodeImpl::BodyToVBuf(BRepVM* vm)
         && vm->m_registers[r_src].type == ValueType::BODY);
 
     auto src = vm->m_registers[r_src].as.body;
-    auto dst = new VertexBuffer(*src);
+    auto dst = new VBO(*src);
 
     uint8_t r_dst = vm->NextByte();
     if (dst) {
-        vm->m_registers[r_dst].type = ValueType::VERTEX_BUFFER;
-        vm->m_registers[r_dst].as.vbuf = dst;
+        vm->m_registers[r_dst].type = ValueType::VBO;
+        vm->m_registers[r_dst].as.vbo = dst;
     } else {
         vm->m_registers[r_dst].type = ValueType::NIL;
     }
