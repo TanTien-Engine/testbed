@@ -1,0 +1,46 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
+
+class Fork is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo",   VAR_TYPE_GEO),
+			Pin(this, "plane", VAR_TYPE_PLANE),
+		]
+		this.exports = [
+			Pin(this, "geo0", VAR_TYPE_GEO),
+			Pin(this, "geo1", VAR_TYPE_GEO),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var v_plane = Blueprint.calc_input_value(this, 1)
+		if (!v_plane) {
+			return nil
+		}
+
+		var new_brush = v_geo.value.shape.fork(v_plane.value)
+		if (idx == 0) {
+			return v_geo
+		} else {
+			var new_geo = VarGeo()
+			new_geo.shape = new_brush
+			return Variant(VAR_TYPE_GEO, new_geo)
+		}
+	}
+}
