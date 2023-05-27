@@ -1,0 +1,27 @@
+var node0 = ::brepfw::nodes::box::Box()
+node0.query_param("size").value.set(1, 1, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -215.65069, 162.30372)
+
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
+
+node1.cam.position.set(1.4928431034948, 1.4189947838139, 3.1044309262322)
+node1.cam.yaw = -120.6
+node1.cam.pitch = -23.5
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.34999999403954
+
+_editor.add_node(node1, -219, -81)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../assets/blueprints/render/draw_geos.ves")
+
+_editor.add_node(node2, 74, 111)
+
+Blueprint.connect(node0, "shape", node2, "shapes")
+Blueprint.connect(node1, "this", node2, "view_cam")

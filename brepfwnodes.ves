@@ -1,0 +1,6 @@
+import "brepfw.nodes.*"
+
+var BREPFW_NODES = [
+Box, 
+Vao,
+]

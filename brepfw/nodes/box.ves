@@ -1,0 +1,128 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geometry" for PolyFace, Polytope
+import "maths.vector" for Vector3
+import "maths" for Plane
+import "brepfw.variant" for VAR_TYPE_TOPO_SHAPE
+import "brepfw" for BRepTools
+
+class Box is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "size", VAR_TYPE_NUMBER3),
+			Pin(this, "pos",  VAR_TYPE_NUMBER3),			
+		]
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_TOPO_SHAPE),
+		]
+
+		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 1 }))
+		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -1, "max" : 1 }))
+
+		this.params.add(NodeParam("offset_x", false))
+		this.params.add(NodeParam("offset_y", false))
+		this.params.add(NodeParam("offset_z", false))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		return this.calc_out_geo()
+	}
+
+	calc_in_size()
+	{
+		var size = nil
+		var v_size = Blueprint.calc_input_value(this, 0)
+		if (v_size) {
+			size = v_size.value
+		} else {
+			size = this.query_param("size").value
+		}
+		return size
+	}
+
+	calc_in_pos()
+	{
+		var pos = nil
+		var v_pos = Blueprint.calc_input_value(this, 1)
+		if (v_pos) {
+			pos = v_pos.value
+		} else {
+			pos = this.query_param("pos").value
+		}
+		return pos
+	}
+
+	calc_out_geo()
+	{
+		var size = this.calc_in_size()
+
+		var hx = size.x * 0.5
+		var hy = size.y * 0.5
+		var hz = size.z * 0.5
+
+		var pos = this.calc_in_pos()
+
+		var xmin = pos.x - hx
+		var xmax = pos.x + hx
+		var ymin = pos.y - hy
+		var ymax = pos.y + hy
+		var zmin = pos.z - hz
+		var zmax = pos.z + hz
+
+		if (this.query_param("offset_x").value) {
+			xmin = xmin + hx
+			xmax = xmax + hx
+		}
+		if (this.query_param("offset_y").value) {
+			ymin = ymin + hy
+			ymax = ymax + hy
+		}
+		if (this.query_param("offset_z").value) {
+			zmin = zmin + hz
+			zmax = zmax + hz
+		}
+
+    	var top_left_front  = [ xmin, ymax, zmin ]
+    	var top_left_back   = [ xmin, ymax, zmax ]
+    	var top_right_front = [ xmax, ymax, zmin ]
+    	var top_right_back  = [ xmax, ymax, zmax ]
+    	var btm_left_front  = [ xmin, ymin, zmin ]
+    	var btm_left_back   = [ xmin, ymin, zmax ]
+    	var btm_right_front = [ xmax, ymin, zmin ]
+    	var btm_right_back  = [ xmax, ymin, zmax ]
+
+    	var faces = []
+
+	    var top = Plane.init(top_left_front, top_left_back, top_right_back)
+	    faces.add(PolyFace.init(top))
+
+	    var bottom = Plane.init(btm_left_front, btm_right_front, btm_right_back)
+	    faces.add(PolyFace.init(bottom))
+
+	    var left = Plane.init(top_left_back, top_left_front, btm_left_front)
+	    faces.add(PolyFace.init(left))
+
+	    var right = Plane.init(top_right_front, top_right_back, btm_right_back)
+	    faces.add(PolyFace.init(right))
+
+	    var front = Plane.init(top_left_front, top_right_front, btm_right_front)
+	    faces.add(PolyFace.init(front))
+
+	    var back = Plane.init(top_right_back, top_left_back, btm_left_back)
+	    faces.add(PolyFace.init(back))
+
+	    var poly = Polytope.init(faces)
+	    var shape = BRepTools.poly2shape(poly)
+		return Variant(VAR_TYPE_TOPO_SHAPE, shape)
+	}
+}
