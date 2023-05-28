@@ -1,37 +1,33 @@
-var node0 = ::brepfw::nodes::box::Box()
-node0.query_param("size").value.set(1, 1, 1)
-node0.query_param("pos").value.set(0, 0, 0)
-node0.query_param("offset_x").value = false
-node0.query_param("offset_y").value = false
-node0.query_param("offset_z").value = false
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
-_editor.add_node(node0, -44.741599090909, 155.03099272727)
+node0.cam.position.set(1.4928431034948, 1.4189947838139, 3.1044309262322)
+node0.cam.yaw = -120.6
+node0.cam.pitch = -23.5
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.34999999403954
 
-var node1 = ::blueprint::nodes::camera3d::Camera3d()
+_editor.add_node(node0, -219, -81)
 
-node1.cam.position.set(1.4928431034948, 1.4189947838139, 3.1044309262322)
-node1.cam.yaw = -120.6
-node1.cam.pitch = -23.5
-node1.cam.zoom = 45
-node1.cam.update_vectors()
-node1.speed = 0.34999999403954
+var node1 = ::brepfw::nodes::label::Label()
 
-_editor.add_node(node1, -219, -81)
+_editor.add_node(node1, -44.464231827189, 305.83571974095)
 
-var node2 = ::brepfw::nodes::label::Label()
+var node2 = ::brepfw::nodes::set_shape::SetShape()
 
-_editor.add_node(node2, -44.464231827189, 305.83571974095)
+_editor.add_node(node2, 95.909090909091, 276.22727272727)
 
-var node3 = ::brepfw::nodes::set_shape::SetShape()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../assets/blueprints/render/draw_label.ves")
 
-_editor.add_node(node3, 95.909090909091, 276.22727272727)
+_editor.add_node(node3, 339.36589030804, 157.494365139)
 
 var node4 = ::blueprint::nodes::subgraph::Subgraph()
-node4.load_from_file(_editor, "../../assets/blueprints/render/draw_label.ves")
+node4.load_from_file(_editor, "../../assets/blueprints/geometry/box.ves")
 
-_editor.add_node(node4, 339.36589030804, 157.494365139)
+_editor.add_node(node4, -94.904739280689, 222.3800296922)
 
+Blueprint.connect(node1, "label", node2, "label")
+Blueprint.connect(node4, "shape", node2, "shape")
 Blueprint.connect(node2, "label", node3, "label")
-Blueprint.connect(node0, "shape", node3, "shape")
-Blueprint.connect(node3, "label", node4, "label")
-Blueprint.connect(node1, "this", node4, "view_cam")
+Blueprint.connect(node0, "this", node3, "view_cam")

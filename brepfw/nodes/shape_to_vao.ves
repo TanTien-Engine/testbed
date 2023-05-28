@@ -6,7 +6,7 @@ import "rendergraph.variant" for VAR_TYPE_VERTEX_ARRAY
 import "brepfw.variant" for VAR_TYPE_TOPO_SHAPE
 import "brepfw" for BRepTools
 
-class Vao is Node
+class ShapeToVao is Node
 {
 	init()
 	{

@@ -125,9 +125,9 @@ node9.query_param("disable").value = false
 
 _editor.add_node(node9, 870.10397061435, 245.6906932484)
 
-var node10 = ::brepfw::nodes::vao::Vao()
+var node10 = ::brepfw::nodes::shape_to_vao::ShapeToVao()
 
-_editor.add_node(node10, 886.33474857551, -189.38579641295)
+_editor.add_node(node10, 877.4076028221, -183.34845002196)
 
 Blueprint.connect(node7, "out", node10, "shape")
 Blueprint.connect(node5, "zoom", node4, "fovy")
