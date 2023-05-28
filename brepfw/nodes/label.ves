@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "brepfw.variant" for VAR_TYPE_LABEL
+import "brepfw" for Label as tt_Label
+
+class Label is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "parent", VAR_TYPE_LABEL),
+		]
+		this.exports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var label = tt_Label.init()
+		return Variant(VAR_TYPE_LABEL, label)
+	}
+}

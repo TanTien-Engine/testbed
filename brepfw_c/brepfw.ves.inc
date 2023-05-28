@@ -1,6 +1,17 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* brepfwModuleSource = QUOTE(
 
+foreign class Label
+{
+	init() {}
+
+	foreign set_shape(shape)
+	foreign get_shape()
+
+	foreign set_render_obj(va)
+	foreign get_render_obj()
+}
+
 foreign class TopoShape
 {
 }
