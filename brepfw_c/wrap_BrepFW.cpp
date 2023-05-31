@@ -11,6 +11,7 @@
 #include "RenderBuilder.h"
 #include "AttrNamedShape.h"
 #include "AttrRenderObj.h"
+#include "AttrColor.h"
 #include "modules/script/TransHelper.h"
 #include "modules/render/Render.h"
 
@@ -38,9 +39,10 @@ void w_BRepTools_poly2shape()
 void w_BRepTools_shape2vao()
 {
     auto shape = ((tt::Proxy<brepfw::TopoShape>*)ves_toforeign(1))->obj;
+    auto color = tt::map_to_vec3(2);
 
     auto dev = tt::Render::Instance()->Device();
-    auto vao = brepfw::RenderBuilder::BuildVAO(*dev, shape);
+    auto vao = brepfw::RenderBuilder::BuildVAO(*dev, shape, color);
 
     ves_pop(ves_argnum());
 
@@ -116,6 +118,50 @@ void w_Label_get_render_obj()
     auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<ur::VertexArray>));
     proxy->obj = va;
     ves_pop(1);
+}
+
+void w_Label_set_color()
+{
+    auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
+    sm::vec3 rgb = tt::map_to_vec3(1);
+    label->AddComponent<brepfw::AttrColor>(rgb);
+}
+
+void w_Label_get_color()
+{
+    auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
+    if (!label->HasComponent<brepfw::AttrColor>()) {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto& attr_color = label->GetComponent<brepfw::AttrColor>();
+    auto& col = attr_color.GetColor();
+
+    ves_pop(ves_argnum());
+
+    ves_newmap();
+    {
+        ves_pushnumber(col.x);
+        ves_setfield(-2, "x");
+        ves_pop(1);
+    }
+    {
+        ves_pushnumber(col.y);
+        ves_setfield(-2, "y");
+        ves_pop(1);
+    }
+    {
+        ves_pushnumber(col.z);
+        ves_setfield(-2, "z");
+        ves_pop(1);
+    }
+}
+
+void w_Label_build_vao()
+{
+    auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
+
 }
 
 void w_TopoVertex_allocate()
@@ -204,13 +250,18 @@ namespace brepfwgraph
 VesselForeignMethodFn BrepFWBindMethod(const char* signature)
 {
     if (strcmp(signature, "static BRepTools.poly2shape(_)") == 0) return w_BRepTools_poly2shape;
-    if (strcmp(signature, "static BRepTools.shape2vao(_)") == 0) return w_BRepTools_shape2vao;
+    if (strcmp(signature, "static BRepTools.shape2vao(_,_)") == 0) return w_BRepTools_shape2vao;
 
     if (strcmp(signature, "Label.set_shape(_)") == 0) return w_Label_set_shape;
     if (strcmp(signature, "Label.get_shape()") == 0) return w_Label_get_shape;
 
     if (strcmp(signature, "Label.set_render_obj(_)") == 0) return w_Label_set_render_obj;
     if (strcmp(signature, "Label.get_render_obj()") == 0) return w_Label_get_render_obj;
+
+    if (strcmp(signature, "Label.set_color(_)") == 0) return w_Label_set_color;
+    if (strcmp(signature, "Label.get_color()") == 0) return w_Label_get_color;
+
+    if (strcmp(signature, "Label.build_vao()") == 0) return w_Label_build_vao;
 
 	return nullptr;
 }

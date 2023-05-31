@@ -16,18 +16,22 @@ namespace brepfw
 {
 
 std::shared_ptr<ur::VertexArray> RenderBuilder::
-BuildVAO(const ur::Device& dev, const std::shared_ptr<TopoShape>& shape)
+BuildVAO(const ur::Device& dev, const std::shared_ptr<TopoShape>& shape, const sm::vec3& color)
 {
 	std::vector<sm::vec3> points;
 	std::vector<std::vector<uint32_t>> faces;
 	BRepExplore::Dump(shape, points, faces);
 
 	std::vector<float> buf;
-	buf.reserve(points.size() * 3);
-	for (auto& p : points) {
+	buf.reserve(points.size() * (3 + 3));
+	for (auto& p : points) 
+    {
 		for (int i = 0; i < 3; ++i) {
 			buf.push_back(p[i]);
 		}
+        for (int i = 0; i < 3; ++i) {
+            buf.push_back(color[i]);
+        }
 	}
 
     std::vector<unsigned short> indices;
@@ -64,12 +68,12 @@ BuildVAO(const ur::Device& dev, const std::shared_ptr<TopoShape>& shape)
     ibuf->SetDataType(ur::IndexBufferDataType::UnsignedShort);
     va->SetIndexBuffer(ibuf);
 
-    std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs;
-    vbuf_attrs.resize(1);
-    // pos
-    vbuf_attrs[0] = std::make_shared<ur::VertexInputAttribute>(
-        0, ur::ComponentDataType::Float, 3, 0, 12
-        );
+    std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs = {
+        // pos
+        std::make_shared<ur::VertexInputAttribute>(0, ur::ComponentDataType::Float, 3, 0, 24),
+        // color
+        std::make_shared<ur::VertexInputAttribute>(1, ur::ComponentDataType::Float, 3, 12, 24)
+    };
     va->SetVertexBufferAttrs(vbuf_attrs);
 
     return va;

@@ -10,6 +10,11 @@ foreign class Label
 
 	foreign set_render_obj(va)
 	foreign get_render_obj()
+
+	foreign set_color(rgb)
+	foreign get_color()
+
+	foreign build_vao()
 }
 
 foreign class TopoShape
@@ -49,7 +54,7 @@ foreign class TopoBody is TopoShape
 foreign class BRepTools
 {
 	foreign static poly2shape(poly)
-	foreign static shape2vao(shape)	
+	foreign static shape2vao(shape, color)	
 }
 
 );

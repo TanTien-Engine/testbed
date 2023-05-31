@@ -28,11 +28,9 @@ class SetShape is Node
 		}
 
 		var v_shape = Blueprint.calc_input_value(this, 1)
-		if (!v_shape) {
-			return v_label
+		if (v_shape) {
+			v_label.value.set_shape(v_shape.value)
 		}
-
-		v_label.value.set_shape(v_shape.value)
 
 		return v_label
 	}

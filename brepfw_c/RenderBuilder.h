@@ -18,7 +18,8 @@ class TopoShape;
 class RenderBuilder
 {
 public:
-	static std::shared_ptr<ur::VertexArray> BuildVAO(const ur::Device& dev, const std::shared_ptr<TopoShape>& shape);
+	static std::shared_ptr<ur::VertexArray> BuildVAO(const ur::Device& dev, const std::shared_ptr<TopoShape>& shape, 
+		const sm::vec3& color);
 
 private:
 	static std::vector<uint32_t> Triangulation(const std::vector<sm::vec3>& verts,

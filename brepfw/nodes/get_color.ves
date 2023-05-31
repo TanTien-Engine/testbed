@@ -1,10 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "rendergraph.variant" for VAR_TYPE_VERTEX_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "brepfw.variant" for VAR_TYPE_LABEL
 
-class SetRenderObj is Node
+class GetColor is Node
 {
 	init()
 	{
@@ -12,10 +12,9 @@ class SetRenderObj is Node
 
 		this.imports = [
 			Pin(this, "label", VAR_TYPE_LABEL),
-			Pin(this, "va", VAR_TYPE_VERTEX_ARRAY),
 		]
 		this.exports = [
-			Pin(this, "label", VAR_TYPE_LABEL),
+			Pin(this, "color", VAR_TYPE_NUMBER3),
 		]
 
 		this.layout()
@@ -28,11 +27,7 @@ class SetRenderObj is Node
 			return nil
 		}
 
-		var v_va = Blueprint.calc_input_value(this, 1)
-		if (v_va) {
-			v_label.value.set_render_obj(v_va.value)
-		}
-
-		return v_label
+		var color = v_label.value.get_color()
+		return Variant(VAR_TYPE_NUMBER3, color)
 	}
 }
