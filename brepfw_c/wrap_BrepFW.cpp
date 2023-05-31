@@ -135,27 +135,8 @@ void w_Label_get_color()
         return;
     }
 
-    auto& attr_color = label->GetComponent<brepfw::AttrColor>();
-    auto& col = attr_color.GetColor();
-
-    ves_pop(ves_argnum());
-
-    ves_newmap();
-    {
-        ves_pushnumber(col.x);
-        ves_setfield(-2, "x");
-        ves_pop(1);
-    }
-    {
-        ves_pushnumber(col.y);
-        ves_setfield(-2, "y");
-        ves_pop(1);
-    }
-    {
-        ves_pushnumber(col.z);
-        ves_setfield(-2, "z");
-        ves_pop(1);
-    }
+    auto& color = label->GetComponent<brepfw::AttrColor>();
+    tt::return_vec(color.GetColor());
 }
 
 void w_Label_build_vao()
