@@ -12,12 +12,14 @@
 #include "AttrNamedShape.h"
 #include "AttrRenderObj.h"
 #include "AttrColor.h"
+#include "TopoAdapter.h"
 #include "modules/script/TransHelper.h"
 #include "modules/render/Render.h"
 
 #include <polymesh3/Polytope.h>
 
 #include <memory>
+#include <iterator>
 
 namespace
 {
@@ -25,7 +27,25 @@ namespace
 void w_BRepTools_poly2shape()
 {
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
-    auto shape = brepfw::BRepBuilder::BuildShell(*poly);
+
+    std::vector<sm::vec3> points;
+    auto& src_points = poly->Points();
+    points.reserve(src_points.size());
+    for (auto& p : src_points) {
+        points.push_back(p->pos);
+    }
+
+    std::vector<std::vector<uint32_t>> faces;
+    auto& src_faces = poly->Faces();
+    faces.reserve(src_faces.size());
+    for (auto& s_f : src_faces) 
+    {
+        std::vector<uint32_t> f;
+        std::copy(s_f->border.begin(), s_f->border.end(), std::back_inserter(f));
+        faces.push_back(f);
+    }
+
+    auto shape = brepfw::BRepBuilder::BuildShell(points, faces);
 
     ves_pop(ves_argnum());
 
@@ -50,6 +70,42 @@ void w_BRepTools_shape2vao()
     ves_import_class("render", "VertexArray");
     auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<ur::VertexArray>));
     proxy->obj = vao;
+    ves_pop(1);
+}
+
+void w_BRepAlgos_clip()
+{
+    auto shape = ((tt::Proxy<brepfw::TopoShape>*)ves_toforeign(1))->obj;
+    sm::Plane* plane = (sm::Plane*)ves_toforeign(2);
+
+    auto keep_str = ves_tostring(3);
+    auto keep = he::Polyhedron::KeepType::KeepAbove;
+    if (strcmp(keep_str, "above") == 0) {
+        keep = he::Polyhedron::KeepType::KeepAbove;
+    } else if (strcmp(keep_str, "below") == 0) {
+        keep = he::Polyhedron::KeepType::KeepBelow;
+    } else if (strcmp(keep_str, "all") == 0) {
+        keep = he::Polyhedron::KeepType::KeepAll;
+    }
+
+    auto seam_face = ves_toboolean(4);
+
+    auto topo = brepfw::TopoAdapter::BRep2Topo(shape);
+    if (!topo->Clip(*plane, keep, seam_face)) {
+        ves_set_nil(0);
+        return;
+    }
+
+    brepfw::TopoAdapter::Topo2BRep(shape, topo);
+
+    auto ret = brepfw::TopoAdapter::Topo2BRep(topo);
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("brepfw", "TopoShape");
+    auto proxy = (tt::Proxy<brepfw::TopoShape>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepfw::TopoShape>));
+    proxy->obj = ret;
     ves_pop(1);
 }
 
@@ -232,6 +288,8 @@ VesselForeignMethodFn BrepFWBindMethod(const char* signature)
 {
     if (strcmp(signature, "static BRepTools.poly2shape(_)") == 0) return w_BRepTools_poly2shape;
     if (strcmp(signature, "static BRepTools.shape2vao(_,_)") == 0) return w_BRepTools_shape2vao;
+
+    if (strcmp(signature, "static BRepAlgos.clip(_,_,_,_)") == 0) return w_BRepAlgos_clip;
 
     if (strcmp(signature, "Label.set_shape(_)") == 0) return w_Label_set_shape;
     if (strcmp(signature, "Label.get_shape()") == 0) return w_Label_get_shape;

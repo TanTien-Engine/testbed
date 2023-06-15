@@ -57,4 +57,9 @@ foreign class BRepTools
 	foreign static shape2vao(shape, color)	
 }
 
+foreign class BRepAlgos
+{
+	foreign static clip(shape, plane, keep, seam)
+}
+
 );

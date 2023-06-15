@@ -10,28 +10,26 @@
 namespace brepfw
 {
 
-std::shared_ptr<TopoShell> BRepBuilder::BuildShell(const pm3::Polytope& poly)
+std::shared_ptr<TopoShell> BRepBuilder::BuildShell(std::vector<sm::vec3>& points, std::vector<std::vector<uint32_t>>& faces)
 {
-	auto& src_points = poly.Points();
 	std::vector<std::shared_ptr<TopoVertex>> dst_points;
-	dst_points.reserve(src_points.size());
-	for (auto& p : src_points) {
-		dst_points.push_back(std::make_shared<TopoVertex>(p->pos));
+	dst_points.reserve(points.size());
+	for (auto& p : points) {
+		dst_points.push_back(std::make_shared<TopoVertex>(p));
 	}
 
-	auto& src_faces = poly.Faces();
 	std::vector<std::shared_ptr<TopoFace>> dst_faces;
-	for (auto& f : src_faces)
+	for (auto& f : faces)
 	{
-		if (f->border.size() < 3) {
+		if (f.size() < 3) {
 			continue;
 		}
 
 		std::vector<std::shared_ptr<TopoEdge>> edges;
-		for (size_t i = 0, n = f->border.size(); i < n; ++i)
+		for (size_t i = 0, n = f.size(); i < n; ++i)
 		{
-			auto p1 = dst_points[f->border[i]];
-			auto p2 = dst_points[f->border[(i + 1) % n]];
+			auto p1 = dst_points[f[i]];
+			auto p2 = dst_points[f[(i + 1) % n]];
 			auto edge = std::make_shared<TopoEdge>(p1, p2);
 			edges.push_back(edge);
 		}

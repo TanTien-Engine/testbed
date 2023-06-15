@@ -1,6 +1,6 @@
 import "brepfw.nodes.*"
 
 var BREPFW_NODES = [
-Label, PolyToShape, ShapeToVao,
+Label, PolyToShape, ShapeToVao, Clip,
 SetShape, GetShape, SetRenderObj, GetRenderObj, SetColor, GetColor
 ]

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
+#include <SM_Vector.h>
 
-namespace pm3 { class Polytope; }
+#include <memory>
+#include <vector>
 
 namespace brepfw
 {
@@ -12,7 +13,9 @@ class TopoShell;
 class BRepBuilder
 {
 public:
-	static std::shared_ptr<TopoShell> BuildShell(const pm3::Polytope& poly);
+	static std::shared_ptr<TopoShell> BuildShell(
+		std::vector<sm::vec3>& points, std::vector<std::vector<uint32_t>>& faces
+	);
 
 }; // BRepBuilder
 
