@@ -14,7 +14,6 @@
 #include "AttrColor.h"
 #include "TopoAdapter.h"
 #include "LabelBuilder.h"
-#include "AttrTreeNode.h"
 #include "modules/script/TransHelper.h"
 #include "modules/render/Render.h"
 
@@ -163,7 +162,11 @@ void w_Label_set_render_obj()
 {
     auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
     auto va = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(1))->obj;
-    label->AddComponent<brepfw::AttrRenderObj>(va);
+    if (label->HasComponent<brepfw::AttrRenderObj>()) {
+        label->GetComponent<brepfw::AttrRenderObj>().SetVA(va);
+    } else {
+        label->AddComponent<brepfw::AttrRenderObj>(va);
+    }
 }
 
 void w_Label_get_render_obj()
@@ -190,31 +193,50 @@ void w_Label_set_color()
 {
     auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
     sm::vec3 rgb = tt::map_to_vec3(1);
-    label->AddComponent<brepfw::AttrColor>(rgb);
+    if (label->HasComponent<brepfw::AttrColor>()) {
+        label->GetComponent<brepfw::AttrColor>().SetColor(rgb);
+    } else {
+        label->AddComponent<brepfw::AttrColor>(rgb);
+    }
+}
+
+bool get_label_color(const brepfw::Label* label, sm::vec3& color)
+{
+    if (!label) {
+        return false;
+    }
+
+    if (label->HasComponent<brepfw::AttrColor>())
+    {
+        color = label->GetComponent<brepfw::AttrColor>().GetColor();
+        return true;
+    }
+    else
+    {
+        auto parent = label->GetParent();
+        if (parent) {
+            return get_label_color(parent, color);
+        }
+    }
+    return false;
 }
 
 void w_Label_get_color()
 {
     auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
-    if (!label->HasComponent<brepfw::AttrColor>()) {
-        ves_set_nil(0);
-        return;
-    }
 
-    auto& color = label->GetComponent<brepfw::AttrColor>();
-    tt::return_vec(color.GetColor());
+    sm::vec3 color;
+    if (get_label_color(label.get(), color)) {
+        tt::return_vec(color);
+    } else {
+        tt::return_vec(sm::vec3(1, 1, 1));
+    }
 }
 
 void w_Label_get_children()
 {
     auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
-    if (!label->HasComponent<brepfw::AttrTreeNode>()) {
-        ves_set_nil(0);
-        return;
-    }
-
-    auto& node = label->GetComponent<brepfw::AttrTreeNode>();
-    auto& children = node.GetAllChildren();
+    auto& children = label->GetAllChildren();
 
     ves_pop(ves_argnum());
 

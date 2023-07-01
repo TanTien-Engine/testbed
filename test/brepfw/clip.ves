@@ -7,49 +7,39 @@ node0.cam.zoom = 45
 node0.cam.update_vectors()
 node0.speed = 0.34999999403954
 
-_editor.add_node(node0, -16, -72)
+_editor.add_node(node0, -162, -140)
 
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "../../assets/blueprints/render/draw_geos.ves")
 
-_editor.add_node(node1, 405, 37)
+_editor.add_node(node1, 202, 71)
 
 var node2 = ::brepfw::nodes::clip::Clip()
 node2.query_param("keep").value = "above"
 node2.query_param("seam").value = true
 
-_editor.add_node(node2, -119.78784098738, 154.64249417334)
+_editor.add_node(node2, -159.78784098738, 16.64249417334)
 
 var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../assets/blueprints/geometry/box.ves")
 
-_editor.add_node(node3, -485.06292519695, 335.13901908065)
+_editor.add_node(node3, -345.06292519695, 145.13901908065)
 
 var node4 = ::geograph::nodes::plane::Plane()
 node4.query_param("ori").value.set(0, 0, 0)
 node4.query_param("dir").value.set(0, 1, 0)
 
-_editor.add_node(node4, -324, 16)
+_editor.add_node(node4, -312, -36)
 
 var node5 = ::brepfw::nodes::poly_to_shape::PolyToShape()
 
-_editor.add_node(node5, -12.611022949219, 75.502990722656)
+_editor.add_node(node5, -164.61102294922, 100.50299072266)
 
 var node6 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node6, 156.38899993896, 72.502990722656)
-
-var node7 = ::brepfw::nodes::label::Label()
-
-_editor.add_node(node7, -435.45870484785, 413.84123091302)
-
-var node8 = ::brepfw::nodes::set_shape::SetShape()
-
-_editor.add_node(node8, -284.25039301015, 376.19152057282)
+_editor.add_node(node6, -16.61100006104, 113.50299072266)
 
 Blueprint.connect(node4, "geo", node5, "geo")
-Blueprint.connect(node7, "label", node8, "label")
-Blueprint.connect(node3, "shape", node8, "shape")
 Blueprint.connect(node3, "shape", node6, "in0")
 Blueprint.connect(node5, "shape", node6, "in1")
 Blueprint.connect(node3, "shape", node2, "shape")

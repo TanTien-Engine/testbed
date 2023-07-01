@@ -16,6 +16,7 @@ public:
 	virtual CompID TypeID() const override { return GetCompTypeID<AttrRenderObj>(); }
 	virtual Attribute* Clone() const override { return nullptr; }
 
+	void SetVA(const std::shared_ptr<ur::VertexArray>& va) { m_va = va; }
 	auto GetVA() const { return m_va; }
 
 private:

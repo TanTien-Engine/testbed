@@ -15,14 +15,18 @@ class LabelExpand is Node
 		]
 
 		this.layout()
-
-		this.children_labels = []
 	}
 
 	calc_value(idx)
 	{
-		if (idx < this.children_labels.count) {
-			return this.children_labels[idx]
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			return nil
+		}
+
+		var children = v_label.value.get_children()
+		if (idx < children.count) {
+			return Variant(VAR_TYPE_LABEL, children[idx])
 		} else {
 			return nil
 		}
@@ -50,7 +54,6 @@ class LabelExpand is Node
 			}
 		}
 		this.exports.clear()
-		this.children_labels.clear()
 
 		var v_label = Blueprint.calc_input_value(this, 0)
 		if (!v_label) {
@@ -59,11 +62,8 @@ class LabelExpand is Node
 		}
 
 		var children = v_label.value.get_children()
-		for (var i in 0 .. children.count) 
-		{
-			var v = Variant(VAR_TYPE_LABEL, children[i])
-			this.exports.add(Pin(this, "%(i)", v.type))
-			this.children_labels.add(v)
+		for (var i in 0 .. children.count) {
+			this.exports.add(Pin(this, "%(i)", VAR_TYPE_LABEL))
 		}
 
 		this.layout()

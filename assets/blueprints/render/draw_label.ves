@@ -127,59 +127,48 @@ _editor.add_node(node8, 737.37665349787, 245.690715443)
 var node9 = ::blueprint::nodes::cache::Cache()
 node9.query_param("disable").value = false
 
-_editor.add_node(node9, 870.10397061435, 245.6906932484)
+_editor.add_node(node9, 872.4985160689, 246.12523870295)
 
-var node10 = ::brepfw::nodes::get_render_obj::GetRenderObj()
+var node10 = ::brepfw::nodes::get_shape::GetShape()
 
-_editor.add_node(node10, 508.93428052036, -287.71604872848)
+_editor.add_node(node10, 311.82134071375, -224.87745616079)
 
-var node11 = ::brepfw::nodes::get_shape::GetShape()
+var node11 = ::brepfw::nodes::set_render_obj::SetRenderObj()
 
-_editor.add_node(node11, 357.78861344102, -348.26881979715)
+_editor.add_node(node11, 599.38746387366, -227.24400320435)
 
-var node12 = ::brepfw::nodes::set_render_obj::SetRenderObj()
+var node12 = ::brepfw::nodes::get_render_obj::GetRenderObj()
 
-_editor.add_node(node12, 668.08200932821, -385.18082138617)
+_editor.add_node(node12, 742.17462846236, -215.19143610174)
 
-var node13 = ::blueprint::nodes::branch_f::BranchF()
+var node13 = ::brepfw::nodes::shape_to_vao::ShapeToVao()
 
-_editor.add_node(node13, 1188.8247833074, -268.01368539567)
+_editor.add_node(node13, 454.37897908048, -244.61199768999)
 
-var node14 = ::blueprint::nodes::is_null::IsNull()
+var node14 = ::brepfw::nodes::get_color::GetColor()
 
-_editor.add_node(node14, 652.84356575518, -229.88145282233)
+_editor.add_node(node14, 312.16001922048, -272.7622582342)
 
-var node15 = ::brepfw::nodes::get_render_obj::GetRenderObj()
+var node15 = ::blueprint::nodes::cache::Cache()
+node15.query_param("disable").value = false
 
-_editor.add_node(node15, 819.96008300781, -374.03734519265)
+_editor.add_node(node15, 881.12315152344, -223.74012047061)
 
-var node16 = ::brepfw::nodes::shape_to_vao::ShapeToVao()
-
-_editor.add_node(node16, 514.89170635321, -392.54881587181)
-
-var node17 = ::brepfw::nodes::get_color::GetColor()
-
-_editor.add_node(node17, 353.5818374023, -410.69907641602)
-
-Blueprint.connect(node7, "out", node17, "label")
-Blueprint.connect(node7, "out", node11, "label")
-Blueprint.connect(node11, "shape", node16, "shape")
-Blueprint.connect(node17, "color", node16, "color")
-Blueprint.connect(node7, "out", node12, "label")
-Blueprint.connect(node16, "vao", node12, "va")
-Blueprint.connect(node12, "label", node15, "label")
+Blueprint.connect(node7, "out", node14, "label")
 Blueprint.connect(node7, "out", node10, "label")
-Blueprint.connect(node10, "va", node14, "in")
-Blueprint.connect(node14, "out", node13, "cond")
-Blueprint.connect(node15, "va", node13, "true")
-Blueprint.connect(node10, "va", node13, "false")
+Blueprint.connect(node10, "shape", node13, "shape")
+Blueprint.connect(node14, "color", node13, "color")
+Blueprint.connect(node7, "out", node11, "label")
+Blueprint.connect(node13, "vao", node11, "va")
+Blueprint.connect(node11, "label", node12, "label")
+Blueprint.connect(node12, "va", node15, "var")
 Blueprint.connect(node5, "zoom", node4, "fovy")
 Blueprint.connect(node5, "mat", node2, "view")
 Blueprint.connect(node4, "mat", node2, "projection")
 Blueprint.connect(node6, "v3", node2, "light_pos")
 Blueprint.connect(node5, "pos", node2, "cam_pos")
 Blueprint.connect(node2, "out", node1, "shader")
-Blueprint.connect(node13, "result", node1, "va")
+Blueprint.connect(node15, "var", node1, "va")
 Blueprint.connect(node3, "next", node7, "prev")
 Blueprint.connect(node9, "var", node7, "in")
 Blueprint.connect(node1, "next", node7, "do")

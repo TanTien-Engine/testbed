@@ -1,5 +1,3 @@
-#include "AttrTreeNode.h"
-#include "AttrNaming.h"
 #include "Label.h"
 #include "LabelTools.h"
 
@@ -8,9 +6,23 @@
 namespace brepfw
 {
 
-void AttrTreeNode::AddChild(const std::shared_ptr<Label>& child)
+Label::~Label()
+{
+	for (auto& child : m_children) {
+		child->m_parent = nullptr;
+	}
+}
+
+void Label::AddChild(const std::shared_ptr<Label>& child)
 {
 	//m_children.push_back(child);
+
+	if (m_children.size() > 10)
+	{
+		int zz = 0;
+	}
+
+	child->m_parent = this;
 
 	auto itr = std::upper_bound(m_children.begin(), m_children.end(), child, 
 		[](const std::shared_ptr<Label>& lbl_1, const std::shared_ptr<Label>& lbl_2)
@@ -20,12 +32,13 @@ void AttrTreeNode::AddChild(const std::shared_ptr<Label>& child)
 	m_children.insert(itr, child);
 }
 
-bool AttrTreeNode::RemoveChild(const std::shared_ptr<Label>& child)
+bool Label::RemoveChild(const std::shared_ptr<Label>& child)
 {
 	for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
 	{
 		if (*itr == child)
 		{
+			(*itr)->m_parent = nullptr;
 			m_children.erase(itr);
 			return true;
 		}
@@ -33,14 +46,21 @@ bool AttrTreeNode::RemoveChild(const std::shared_ptr<Label>& child)
 	return false;
 }
 
-void AttrTreeNode::RemoveAllChildren()
+void Label::RemoveAllChildren()
 {
+	for (auto& child : m_children) {
+		child->m_parent = nullptr;
+	}
 	m_children.clear();
 }
 
-void AttrTreeNode::SetChildren(const std::vector<std::shared_ptr<Label>>& children)
+void Label::SetChildren(const std::vector<std::shared_ptr<Label>>& children)
 {
 	m_children = children;
+
+	for (auto& child : m_children) {
+		child->m_parent = this;
+	}
 }
 
 }

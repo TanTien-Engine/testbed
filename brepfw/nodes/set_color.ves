@@ -33,6 +33,8 @@ class SetColor is Node
 			v_label.value.set_color(v_color.value)
 		}
 
+		Blueprint.send_pin_dirty_root(this.exports[0])
+
 		return v_label
 	}
 }
