@@ -13,6 +13,8 @@
 #include "AttrRenderObj.h"
 #include "AttrColor.h"
 #include "TopoAdapter.h"
+#include "LabelBuilder.h"
+#include "AttrTreeNode.h"
 #include "modules/script/TransHelper.h"
 #include "modules/render/Render.h"
 
@@ -120,7 +122,7 @@ void w_BRepAlgos_clip()
 void w_Label_allocate()
 {
     auto proxy = (tt::Proxy<brepfw::Label>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepfw::Label>));
-        proxy->obj = std::make_shared<brepfw::Label>();
+    proxy->obj = std::make_shared<brepfw::Label>();
 }
 
 int w_Label_finalize(void* data)
@@ -134,7 +136,7 @@ void w_Label_set_shape()
 {
     auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<brepfw::TopoShape>*)ves_toforeign(1))->obj;
-    label->AddComponent<brepfw::AttrNamedShape>(nullptr, shape);
+    brepfw::LabelBuilder::BuildFromShape(label, shape);
 }
 
 void w_Label_get_shape()
@@ -201,6 +203,33 @@ void w_Label_get_color()
 
     auto& color = label->GetComponent<brepfw::AttrColor>();
     tt::return_vec(color.GetColor());
+}
+
+void w_Label_get_children()
+{
+    auto label = ((tt::Proxy<brepfw::Label>*)ves_toforeign(0))->obj;
+    if (!label->HasComponent<brepfw::AttrTreeNode>()) {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto& node = label->GetComponent<brepfw::AttrTreeNode>();
+    auto& children = node.GetAllChildren();
+
+    ves_pop(ves_argnum());
+
+    const int num = (int)(children.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnil();
+        ves_import_class("brepfw", "Label");
+        auto proxy = (tt::Proxy<brepfw::Label>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<brepfw::Label>));
+        proxy->obj = children[i];
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
 }
 
 void w_Label_build_vao()
@@ -307,6 +336,8 @@ VesselForeignMethodFn BrepFWBindMethod(const char* signature)
 
     if (strcmp(signature, "Label.set_color(_)") == 0) return w_Label_set_color;
     if (strcmp(signature, "Label.get_color()") == 0) return w_Label_get_color;
+
+    if (strcmp(signature, "Label.get_children()") == 0) return w_Label_get_children;
 
     if (strcmp(signature, "Label.build_vao()") == 0) return w_Label_build_vao;
 

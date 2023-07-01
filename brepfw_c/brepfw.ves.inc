@@ -14,6 +14,8 @@ foreign class Label
 	foreign set_color(rgb)
 	foreign get_color()
 
+	foreign get_children()
+
 	foreign build_vao()
 }
 
