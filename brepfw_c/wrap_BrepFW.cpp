@@ -21,6 +21,8 @@
 #include <memory>
 #include <iterator>
 
+#define DELTA_UPDATES
+
 namespace
 {
 
@@ -41,7 +43,11 @@ void w_BRepTools_poly2shape()
     for (auto& s_f : src_faces) 
     {
         std::vector<uint32_t> f;
-        std::copy(s_f->border.begin(), s_f->border.end(), std::back_inserter(f));
+        f.reserve(s_f->border.size());
+        for (auto i : s_f->border) {
+            f.push_back(static_cast<uint32_t>(i));
+        }
+
         faces.push_back(f);
     }
 
@@ -96,16 +102,18 @@ void w_BRepAlgos_clip()
         return;
     }
 
-    brepfw::TopoAdapter::Topo2BRep(shape, topo);
-
-    auto ret = brepfw::TopoAdapter::Topo2BRep(topo);
+#ifdef DELTA_UPDATES
+    brepfw::TopoAdapter::Topo2BRep(topo, shape);
+#else
+    shape = brepfw::TopoAdapter::Topo2BRep(topo);
+#endif // DELTA_UPDATES
 
     ves_pop(ves_argnum());
 
     ves_pushnil();
     ves_import_class("brepfw", "TopoShape");
     auto proxy = (tt::Proxy<brepfw::TopoShape>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepfw::TopoShape>));
-    proxy->obj = ret;
+    proxy->obj = shape;
     ves_pop(1);
 }
 

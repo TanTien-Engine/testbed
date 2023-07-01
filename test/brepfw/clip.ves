@@ -23,7 +23,7 @@ _editor.add_node(node2, -119.78784098738, 154.64249417334)
 var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../assets/blueprints/geometry/box.ves")
 
-_editor.add_node(node3, -284.87168142945, 301.25906800925)
+_editor.add_node(node3, -485.06292519695, 335.13901908065)
 
 var node4 = ::geograph::nodes::plane::Plane()
 node4.query_param("ori").value.set(0, 0, 0)
@@ -39,7 +39,17 @@ var node6 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node6, 156.38899993896, 72.502990722656)
 
+var node7 = ::brepfw::nodes::label::Label()
+
+_editor.add_node(node7, -435.45870484785, 413.84123091302)
+
+var node8 = ::brepfw::nodes::set_shape::SetShape()
+
+_editor.add_node(node8, -284.25039301015, 376.19152057282)
+
 Blueprint.connect(node4, "geo", node5, "geo")
+Blueprint.connect(node7, "label", node8, "label")
+Blueprint.connect(node3, "shape", node8, "shape")
 Blueprint.connect(node3, "shape", node6, "in0")
 Blueprint.connect(node5, "shape", node6, "in1")
 Blueprint.connect(node3, "shape", node2, "shape")

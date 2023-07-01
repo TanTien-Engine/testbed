@@ -4,10 +4,12 @@
 #include "TopoShell.h"
 #include "TopoFace.h"
 #include "TopoVertex.h"
+#include "TopoEdge.h"
+#include "TopoLoop.h"
 
 #include <SM_Vector.h>
-#include <halfedge/Polyhedron.h>
 
+#include <set>
 #include <vector>
 #include <iterator>
 
@@ -45,7 +47,6 @@ TopoAdapter::BRep2Topo(const std::shared_ptr<TopoShape>& brep)
 		std::vector<size_t> loop_indices;
 		std::copy(faces_idx[i].begin(), faces_idx[i].end(), std::back_inserter(loop_indices));
 		auto loop = poly->AddFace(loop_indices, v_array, builder);
-
 		loop->id = reinterpret_cast<uint64_t>(faces[i].get());
 	}
 
@@ -98,51 +99,136 @@ TopoAdapter::Topo2BRep(const std::shared_ptr<he::Polyhedron>& topo)
 	return BRepBuilder::BuildShell(points, faces);
 }
 
-void TopoAdapter::Topo2BRep(const std::shared_ptr<TopoShape>& brep, 
-	                        const std::shared_ptr<he::Polyhedron>& topo)
+void TopoAdapter::Topo2BRep(const std::shared_ptr<he::Polyhedron>& topo,
+	                        std::shared_ptr<TopoShape>& brep)
 {
 	if (brep->GetType() != TOPO_SHELL) {
 		return;
 	}
 
-	//auto& src_verts = topo->GetVerts();
+	// old brep
+	std::vector<std::shared_ptr<TopoVertex>> points;
+	std::vector<std::shared_ptr<TopoFace>> faces;
+	std::vector<std::vector<uint32_t>> faces_idx;
+	BRepExplore::Dump(brep, points, faces, faces_idx);
+	if (faces.empty()) {
+		return;
+	}
 
+	// point to old vert idx
+	for (int i = 0, n = static_cast<int>(points.size()); i < n; ++i) {
+		points[i]->SetID(i);
+	}
 
-	auto& src_faces = topo->GetFaces();
+	std::vector<std::shared_ptr<TopoVertex>> dst_verts;
 
-	for (auto& s_f : src_faces)
-	{
-		auto topo_face = reinterpret_cast<TopoVertex*>(s_f.border->id);
-		if (s_f.border->type != he::EditType::Unmod)
+	// convert verts topo to brep
+    auto& src_pts = topo->GetVerts();
+	dst_verts.reserve(src_pts.Size());
+    auto first_p = src_pts.Head();
+    auto curr_p = first_p;
+    do {
+		switch (curr_p->type)
 		{
-			int zz = 0;
+		case he::EditType::Unmod:
+		{
+			int idx = reinterpret_cast<TopoVertex*>(curr_p->id)->GetID();
+			dst_verts.push_back(points[idx]);
+		}
+			break;
+		case he::EditType::Add:
+		{
+			auto v = std::make_shared<TopoVertex>(curr_p->position);
+			curr_p->id = reinterpret_cast<uint64_t>(v.get());
+			dst_verts.push_back(v);
+		}
+			break;
+		case he::EditType::Mod:
+		{
+			int idx = reinterpret_cast<TopoVertex*>(curr_p->id)->GetID();
+			points[idx]->SetPos(curr_p->position);
+			dst_verts.push_back(points[idx]);
+		}
+			break;
 		}
 
-		std::vector<uint32_t> face;
+        curr_p = curr_p->linked_next;
+    } while (curr_p != first_p);
 
-		auto first_e = s_f.border->edge;
-		auto curr_e = first_e;
-		do {
-			//auto itr = vert2idx.find(curr_e->point);
-			//assert(itr != vert2idx.end());
-			//face.push_back(itr->second);
+	// point to new vert idx
+	for (int i = 0, n = static_cast<int>(dst_verts.size()); i < n; ++i) {
+		dst_verts[i]->SetID(i);
+	}
 
-			auto topo_vert = reinterpret_cast<TopoVertex*>(curr_e->vert->id);
-			if (curr_e->vert->type != he::EditType::Unmod)
-			{
-				int zz = 0;
-			}
+	// point to old face idx
+	for (int i = 0, n = static_cast<int>(faces.size()); i < n; ++i) {
+		faces[i]->SetID(i);
+	}
 
-			curr_e = curr_e->next;
-		} while (curr_e != first_e);
+	std::vector<std::shared_ptr<TopoFace>> dst_faces;
+	dst_faces.reserve(faces.size());
 
-		//faces.push_back(face);
+	auto& src_faces = topo->GetFaces();
+	for (auto& s_f : src_faces)
+	{
+		switch (s_f.border->type)
+		{
+		case he::EditType::Unmod:
+		{
+			int idx = reinterpret_cast<TopoFace*>(s_f.border->id)->GetID();
+			dst_faces.push_back(faces[idx]);
+		}
+			break;
+		case he::EditType::Add:
+		{
+			auto edges = Topo2BRep(s_f, dst_verts);
+			auto loop = std::make_shared<TopoLoop>(edges);
+			dst_faces.push_back(std::make_shared<TopoFace>(loop));
+		}
+			break;
+		case he::EditType::Mod:
+		{
+			auto edges = Topo2BRep(s_f, dst_verts);
+			auto loop = std::make_shared<TopoLoop>(edges);
+
+			int idx = reinterpret_cast<TopoFace*>(s_f.border->id)->GetID();
+			faces[idx]->SetLoops({ loop });
+
+			dst_faces.push_back(faces[idx]);
+		}
+			break;
+		}
 	}
 
 	auto shell = std::static_pointer_cast<TopoShell>(brep);
-	auto& dst_faces = shell->GetFaces();
+	shell->SetFaces(dst_faces);
+}
 
-	int zz = 0;
+std::vector<std::shared_ptr<TopoEdge>> 
+TopoAdapter::Topo2BRep(const he::Polyhedron::Face& face,
+	                   const std::vector<std::shared_ptr<TopoVertex>>& verts)
+{
+	std::vector<uint32_t> loop_indices;
+
+	auto first_e = face.border->edge;
+	auto curr_e = first_e;
+	do {
+		int idx = reinterpret_cast<TopoVertex*>(curr_e->vert->id)->GetID();
+		loop_indices.push_back(idx);
+
+		curr_e = curr_e->next;
+	} while (curr_e != first_e);
+
+	std::vector<std::shared_ptr<TopoEdge>> edges;
+	for (size_t i = 0, n = loop_indices.size(); i < n; ++i)
+	{
+		auto p1 = verts[loop_indices[i]];
+		auto p2 = verts[loop_indices[(i + 1) % n]];
+		auto edge = std::make_shared<TopoEdge>(p1, p2);
+		edges.push_back(edge);
+	}
+
+	return edges;
 }
 
 }

@@ -20,10 +20,16 @@ public:
 
 	virtual TopoShapeType GetType() const override { return TOPO_FACE; }
 
+	void SetLoops(const std::vector<std::shared_ptr<TopoLoop>>& loops) { m_loops = loops; }
 	auto& GetLoops() const { return m_loops; }
+
+	void SetID(int id) { m_id = id; }
+	int GetID() const { return m_id; }
 
 private:
 	std::vector<std::shared_ptr<TopoLoop>> m_loops;
+
+	int m_id = -1;
 
 }; // TopoFace
 
